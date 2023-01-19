@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "app_error.h"
 #include "nrf.h"
@@ -22,8 +23,18 @@
 // LED array
 static uint8_t LEDS[3] = {BUCKLER_LED0, BUCKLER_LED1, BUCKLER_LED2};
 
+ static int Addresses [3] = {BUCKLER_LED0, BUCKLER_LED2, BUCKLER_LED2};
+//printf("%p\n \n", (void*)&Addresses[0]);
+
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
+
+   int nums [3] = {1, 2 ,3};
+   printf("Memory Addresses of 1 : %p\n 2: %p\n 3: %p\n", &nums[0], &nums[1], &nums[2]);
+
+   int nums2 [3] = {1, 2 ,3};
+   printf("Memory Addresses P2 of 1 : %p\n 2: %p\n 3: %p\n", &nums2[0], &nums2[1], &nums2[2]);
+
 
   // initialize GPIO driver
   if (!nrfx_gpiote_is_init()) {
@@ -39,12 +50,40 @@ int main(void) {
     APP_ERROR_CHECK(error_code);
   }
 
+
+  int j = 0;
+  nrf_gpio_pin_toggle(LEDS[0]);
   // loop forever
   while (1) {
-    for (int i=0; i<3; i++) {
-      nrf_gpio_pin_toggle(LEDS[i]);
-      nrf_delay_ms(1000);
+
+    j++; 
+
+    if( j% 4 ==0 )
+    {
+      nrf_gpio_pin_toggle(LEDS[0]);
+      nrf_gpio_pin_set(LEDS[1]);
+      nrf_gpio_pin_set(LEDS[2]);
+
+
+
     }
+
+
+
+    if( j% 16 ==0 )
+    {
+      nrf_gpio_pin_toggle(LEDS[1]);
+    }
+
+
+    if( j% 32 == 0)
+    {
+      nrf_gpio_pin_toggle(LEDS[2]);
+      j=0;
+    }
+
+    nrf_delay_ms(100);
+    
   }
 }
 

@@ -30,8 +30,15 @@ int main(void) {
 
   // loop forever
   uint32_t i = 0;
+  printf(&i);
+
+  float a = 0;
+  int b = 0;
+  char c = '0';
+
+  printf("Float A : %p\n Int B = %p\n  Char C =%p\n", &a, &b, &c);
   while (1) {
-    nrf_delay_ms(1000);
+    nrf_delay_ms(10000);
     printf("Iteration: %lu\n", i++);
   }
 }

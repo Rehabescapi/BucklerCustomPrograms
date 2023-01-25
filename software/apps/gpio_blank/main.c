@@ -18,6 +18,11 @@
 #include "buckler.h"
 #include "gpio.h"
 
+
+static uint8_t* outset = (uint8_t *) 0x50000508;
+static uint8_t* outclear = (uint8_t *) 0x5000050C;
+static uint8_t* CNF0 = (uint8_t * ) 0x50000700;
+static uint8_t*  PIN  = (uint8_t*) 0x50000754;
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
 
@@ -27,8 +32,20 @@ int main(void) {
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Log initialized!\n");
 
+  printf("OutClear ");
+  printf("%p\n",  outclear );
+  printf("Out Set %p\n", outset);
+
+
+
+
+
   // loop forever
-  while (1) {
+  while (1){
+
+    nrf_gpio_pin_toggle(outclear);
+
+    nrf_delay_ms(1000);
   }
 }
 

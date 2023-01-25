@@ -27,3 +27,12 @@ bool gpio_read(uint8_t gpio_num) {
     // should return pin state
     return 0;
 }
+
+typedef struct 
+{
+   uint32_t  var_OUT;
+   uint32_t var_IN;
+   uint32_t var_DIR;
+   uint32_t arr[32];  
+    
+}gpio;

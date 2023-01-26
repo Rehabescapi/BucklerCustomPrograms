@@ -4,10 +4,14 @@
 #include "stdbool.h"
 typedef struct 
 {
+    uint32_t OUT;
     uint32_t OUTSET;
     uint32_t OUTCLEAR;
     uint32_t IN; 
-    uint32_t arr[32];
+    uint32_t DIR;
+    uint32_t DIRSET;
+    uint32_t DIRCLR;
+    
 } gpio;
 
 typedef struct {
@@ -34,9 +38,9 @@ typedef struct {
     uint32_t PIN20;
     uint32_t PIN21;
     uint32_t SWITCH0;
-    uint32_t BLUE;
-    uint32_t YLLO;
-    uint32_t RED;
+    uint32_t BLUE;//23
+    uint32_t YLLO;//24
+    uint32_t RED;//25
     uint32_t PIN26;
     uint32_t PIN27;
     uint32_t BUTTON0;

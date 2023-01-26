@@ -63,35 +63,36 @@ int main(void) {
   //Adding Light struct
   
   volatile pins* const pinD = (pins*) 0x50000700;
-  volatile gpio* const GPIO = (gpio*) 0x50000508;
+  volatile gpio* const GPIO = (gpio*) 0x50000504;
  
   
   //hardwareptr->arr= &PIN0;//0x50000700
-  
- pinD->BLUE = 1;
-  
+  pinD->RED =1;
+  nrf_delay_ms(20);
+  pinD->BLUE = 1;
   pinD->YLLO = 1; // Yellow
-  pinD->RED =1; // Red
 
+  
+  
+/*
   pinD->SWITCH0 = 0;
   pinD->SWITCH0 = 1 <<1;
   pinD->BUTTON0 =0;
   pinD->BUTTON0 =1 <<1;
 
-  GPIO->OUTCLEAR = 1 <<28;//clear
-  GPIO->OUTCLEAR = 1 <<22;//clear
+  GPIO->OUTCLEAR = 1 << 28;//clear
+  GPIO->OUTCLEAR = 1 << 22;//clear
 
 
   //Setting Pins as inputs
-  *IN = 1 <<28;
-  *IN = 1 <<22;
+  GPIO->IN = 1 <<28;
+  GPIO->IN = 1 <<22;
 
-  GPIO->OUTCLEAR =  1 << 25; //clear
-  printf("Turning on 25.");
-  nrf_delay_ms(3000);
-  GPIO->OUTSET = 1 << 25;
-  printf("Turning off Blue\n");
+  */
+  
+  //printf("BUTTON0 %p\n\n", pinD->BUTTON0);
 
+ // printf("SWITCH0 %p\n\n",pinD->SWITCH0);
 
   bool temp = true;
 
@@ -100,13 +101,15 @@ int main(void) {
     //printf("Starting loop\n");
 
     
+
+    
    
     if(temp)
     {
       //printf("toggle back on\n");
       temp = !temp;
-      GPIO->OUTCLEAR = 1 <<23;
-      GPIO->OUTSET = 1 <<25;
+      GPIO->OUTCLEAR = 1 << 23;
+      //GPIO->OUTSET = 1 << 25;
 
       
       
@@ -117,13 +120,15 @@ int main(void) {
       temp = true;
       
       GPIO->OUTSET =  1 << 23; 
-      GPIO->OUTCLEAR =1 <<25;
+      //GPIO->OUTCLEAR = 1 << 25;
     }
 
 
 
 
-    nrf_delay_ms(1000);
+    nrf_delay_ms(2000);
+     printf("BUTTON0 %p\n\n", &pinD->BUTTON0);
+     printf("SWITCH0 %p\n\n",&pinD->SWITCH0);
   }
 }
 

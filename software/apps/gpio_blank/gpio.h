@@ -2,6 +2,13 @@
 
 #include "nrf.h"
 #include "stdbool.h"
+struct gpio
+{
+    uint32_t var_OUTSET;
+    uint32_t var_IN;
+    uint32_t var_OUTCLEAR; 
+    uint32_t arr[32];
+};
 
 typedef enum {
     INPUT = 0,
@@ -26,3 +33,5 @@ void gpio_clear(uint8_t gpio_num);
 // Returns:
 //  current state of the specified gpio pin
 bool gpio_read(uint8_t gpio_num);
+
+

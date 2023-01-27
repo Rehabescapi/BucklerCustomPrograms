@@ -2,11 +2,18 @@
 
 static uint32_t* OUTSET = (uint32_t*) 0x50000508;
 static uint32_t* OUTCLEAR = (uint32_t*) 0x5000050C;
+static uint32_t* IN = (uint32_t*) 0x50000510;
+ 
 // Inputs: 
 //  gpio_num - gpio number 0-31
 //  dir - gpio direction (INPUT, OUTPUT)
 void gpio_config(uint8_t gpio_num, gpio_direction_t dir) {
+    uint32_t* pinStart = (uint32_t*) 0x50000700;
+  //uint32_t  *pinStart + (gpio_num -1) * sizeof(uint8_t)
+  //*pinStart = dir << gpio_num*4;
+  uint32_t *tempPTR = pinStart + (uint8_t)1 *gpio_num;
 
+  *tempPTR = dir;
 }
 
 // Set gpio_num high
@@ -28,6 +35,14 @@ void gpio_clear(uint8_t gpio_num) {
 // Inputs: 
 //  gpio_num - gpio number 0-31
 bool gpio_read(uint8_t gpio_num) {
+    
     // should return pin state
-    return 0;
+    return (*IN >> gpio_num) &1;
+}
+
+
+bool gpio_readButton() {
+    printf("WOO\n");
+    // should return pin state
+    return false;
 }

@@ -73,4 +73,4 @@ void gpio_clear(uint8_t gpio_num);
 //  current state of the specified gpio pin
 bool gpio_read(uint8_t gpio_num);
 
-
+bool gpio_readButton();

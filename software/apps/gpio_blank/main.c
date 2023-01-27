@@ -32,23 +32,7 @@ static uint32_t* DIR = (uint32_t*) 0x5000514;
 
 
 
-//static uint32_t* Button0
-//static unit32_t* SWITCH0
 
-
-//0x50000000 + 0x700 + pin_num *4
-
-//Recreating Blink P1
-/*
-typedef struct 
-{
-   uint32_t  var_OUT;
-   uint32_t var_IN;
-   uint32_t var_DIR; 
-   uint32_t arr[32];
-    
-}gpio_t;
-*/
 
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
@@ -65,30 +49,23 @@ int main(void) {
   volatile pins* const pinD = (pins*) 0x50000700;
   volatile gpio* const GPIO = (gpio*) 0x50000504;
  
+  gpio_config(25, 1);
+  gpio_config(24, 1);
+  gpio_config(23, 1);
   
-  //hardwareptr->arr= &PIN0;//0x50000700
-  pinD->RED =1;
-  nrf_delay_ms(20);
-  pinD->BLUE = 1;
-  pinD->YLLO = 1; // Yellow
 
-  
-  
-/*
   pinD->SWITCH0 = 0;
-  pinD->SWITCH0 = 1 <<1;
+  pinD->SWITCH0 = 0 <<1;
   pinD->BUTTON0 =0;
-  pinD->BUTTON0 =1 <<1;
+  pinD->BUTTON0 =0 <<1;
 
-  GPIO->OUTCLEAR = 1 << 28;//clear
-  GPIO->OUTCLEAR = 1 << 22;//clear
+  //GPIO->OUTCLEAR = 1 << 28;//clear
+  //GPIO->OUTCLEAR = 1 << 22;//clear
 
 
   //Setting Pins as inputs
-  GPIO->IN = 1 <<28;
-  GPIO->IN = 1 <<22;
-
-  */
+  //GPIO->IN = 1 <<28;
+  //GPIO->IN = 1 <<22;
   
   //printf("BUTTON0 %p\n\n", pinD->BUTTON0);
 
@@ -98,8 +75,32 @@ int main(void) {
 
   // loop forever
   while (1){
-    //printf("Starting loop\n");
+    
+    bool x = gpio_read(22);
+    bool y = gpio_read(28);
 
+    printf("Switch%d and Button is %d\n\n", x, y);
+    if(x)
+    {
+       gpio_clear( 23);
+       gpio_set( 25);
+
+    }
+    else
+    {
+     gpio_set (23); 
+       gpio_clear(25);
+
+    }
+
+    if(y){
+       gpio_clear(24);
+    }
+    else
+    {
+      gpio_set( 24);
+    }
+    
     
 
     
@@ -108,7 +109,7 @@ int main(void) {
     {
       //printf("toggle back on\n");
       temp = !temp;
-      GPIO->OUTCLEAR = 1 << 23;
+      //GPIO->OUTCLEAR = 1 << 23;
       //GPIO->OUTSET = 1 << 25;
 
       
@@ -119,7 +120,7 @@ int main(void) {
     {
       temp = true;
       
-      GPIO->OUTSET =  1 << 23; 
+      //GPIO->OUTSET =  1 << 23; 
       //GPIO->OUTCLEAR = 1 << 25;
     }
 
@@ -127,8 +128,6 @@ int main(void) {
 
 
     nrf_delay_ms(2000);
-     printf("BUTTON0 %p\n\n", &pinD->BUTTON0);
-     printf("SWITCH0 %p\n\n",&pinD->SWITCH0);
+     
   }
 }
-

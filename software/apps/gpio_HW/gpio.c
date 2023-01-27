@@ -18,7 +18,6 @@ void gpio_config(uint8_t gpio_num, gpio_direction_t dir) {
 //  gpio_num - gpio number 0-31
 void gpio_set(uint8_t gpio_num) {
     *OUTSET =  1 << gpio_num;
-    //something was weird when i changed it to |=
 
 }
 

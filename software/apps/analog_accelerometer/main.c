@@ -38,6 +38,14 @@ nrf_saadc_value_t sample_value (uint8_t channel) {
   return val;
 }
 
+
+float revert (float Voltage){ 
+  //conversion slope is 1V / (131 mV/g)
+  float A = .001 *407; // mV/g
+  float B = 1.45; //listed default bias 3 at 3.3V it would be 1/2
+  return (Voltage - B )/A;
+}
+
 int main (void) {
   ret_code_t error_code = NRF_SUCCESS;
 
@@ -74,8 +82,10 @@ int main (void) {
   APP_ERROR_CHECK(error_code);
 
   // initialization complete
-  printf("Buckler initialized!\n");
+  printf("Buckler initialized! Nerds!!\n");
+  float LSB = 0.0008789; // (reference/ internal Gain) / (2^SAADC Resolution)
 
+  //todo calculate actual LSB; GAIN1_6 , REFERENCEINTERNAL
   // loop forever
   while (1) {
     // sample analog inputs
@@ -83,10 +93,14 @@ int main (void) {
     nrf_saadc_value_t y_val = sample_value(Y_CHANNEL);
     nrf_saadc_value_t z_val = sample_value(Z_CHANNEL);
 
+
+    float volt_x = (float) x_val *LSB;
+    float volt_y = (float) y_val *LSB;
+    float volt_z = (float) z_val *LSB;
+
     // display results
-    printf("x: %d\ty: %d\tz:%d\n", x_val, y_val, z_val);
-    nrf_delay_ms(250);
+    printf("SAADC   = x: %d\ty: %d\tz: %d\n", x_val, y_val, z_val);
+    printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", revert(volt_x), revert(volt_y), revert(volt_z));
+    nrf_delay_ms(750);
   }
 }
-
-

@@ -101,7 +101,7 @@ int main(void) {
     {
       gpio_set( 24);
     }
-    
+    printf("Hi Mom");
 
 
 

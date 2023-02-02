@@ -77,7 +77,7 @@ int main(void) {
 
 
   //not sure what affect this should do.
-  pinD->BUTTON0 = 3 << 3;
+  //pinD->BUTTON0 = 3;
   
 
   // loop forever

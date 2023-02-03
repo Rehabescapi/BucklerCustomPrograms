@@ -47,7 +47,7 @@ nrf_saadc_value_t sample_value (uint8_t channel) {
 float revert (float Voltage){ 
   //conversion slope is 1V / (131 mV/g)
   float A = .001 *407; // mV/g
-  float B = 1.45; //listed default bias 3 at 3.3V it would be 1/2
+  float B = 1.45; //listed default bias 3 at 2.9V it would be 1/2
   return (Voltage - B )/A;
 }
 
@@ -63,6 +63,8 @@ float getAngle(float A , float B){
 float singleAngle( float A){
   return asinf(A/9.8) * (180/M_PI);
 }
+
+
 
 
 
@@ -111,19 +113,27 @@ int main (void) {
   // loop forever
    
   bool button0, switch0;
+  bool bToggle= true;
+
+
+  
+void printAccel(){
+  printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", revert(volt_x), revert(volt_y), revert(volt_z));
+
+  printf("Single Angle measurement of X%f\t Y = %f\t Z = %F\t\n\n", g_z, g_y, g_x);
+
+
+
+}
 
   while (1) {
-    button0 = getInput(23);
+    button0 = getInput(28);
     switch0 = getInput(22);
     
 
     deviceLoop();
 
-
-
-    if(switch0){ 
-
-      nrf_saadc_value_t x_val = sample_value(X_CHANNEL);
+    nrf_saadc_value_t x_val = sample_value(X_CHANNEL);
     nrf_saadc_value_t y_val = sample_value(Y_CHANNEL);
     nrf_saadc_value_t z_val = sample_value(Z_CHANNEL);
 
@@ -136,15 +146,34 @@ int main (void) {
      g_z = revert(volt_z);
      g_y = revert(volt_y);
      g_x = revert(volt_x);
+
+
+
+    if(switch0 && bToggle){ 
+
+    
+     printAccel();
     nrf_delay_ms(2000);
 
 
-    printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", revert(volt_x), revert(volt_y), revert(volt_z));
+    
+    }
+    else{
 
-    printf("Single Angle measurement of X%f\t Y = %f\t Z = %F\t\n\n", g_z, g_y, g_x);
 
+      if(!button0){
+        
+        printAccel();
+
+        nrf_delay_ms(300);
+
+      }else{
+        
+
+      }
 
     }
+    
     // sample analog inputs
    
 
@@ -154,4 +183,6 @@ int main (void) {
     //printf("Angle of Z/X %f\n Angle of Z/Y = %f\n\n", getAngle(g_z, g_x), getAngle(g_z, g_y));
     
   }
+
 }
+

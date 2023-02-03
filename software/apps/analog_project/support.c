@@ -68,7 +68,7 @@ void deviceLoop(){ //handles color and r
 	bool x = gpio_read(22);
     bool y = gpio_read(28);
 
-    printf("Switch%d and Button is %d\n\n", x, y);
+    
     if(x) // if Switch is Low
     {
        gpio_clear( 23);
@@ -85,10 +85,7 @@ void deviceLoop(){ //handles color and r
     {
      gpio_set (23); 
      gpio_clear(25);
-      if(y){
-      
-      printf("Toggle");
-    }
+     
     
 
     }

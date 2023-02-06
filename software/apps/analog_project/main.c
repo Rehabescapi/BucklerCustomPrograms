@@ -125,8 +125,6 @@ int main (void) {
   bool button0, switch0;
   bool bToggle= true;
 
-
-  
 void printAccel(){
   printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", volt_x, volt_y, volt_z);
 
@@ -138,7 +136,8 @@ void printAccel(){
 
   
 }
- 
+
+
   while (1) {
     button0 = getInput(28);
     switch0 = getInput(22);

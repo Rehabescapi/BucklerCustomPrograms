@@ -31,7 +31,7 @@ Set up the I/O to memory Stick. --Given by the instructor.
 
 
 
-
+Moved into Lecture provided Work.
 
 
 Implement a function that when called gives the inclination angle about any of the three axes. (10 marks)

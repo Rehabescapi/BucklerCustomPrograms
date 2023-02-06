@@ -9,6 +9,7 @@
 
 
 #include "timestamp.h"
+#include "support.h"
 
 #define RAD2DEG 57.13 
 
@@ -37,6 +38,8 @@ void saadc_callback (nrfx_saadc_evt_t const * p_event) {
 
 
 int main (void) {
+  struct ThirdAngle Angles;
+  setDevices();
 
   ret_code_t error_code = NRF_SUCCESS;
 
@@ -97,9 +100,9 @@ int main (void) {
 
   // tilt variables
 
-  float phi = 0.0; // angle about x-axis
-  float theta = 0.0;  // angle about z-axis
-  float psi = 0.0; // angle about y-axis
+  //float phi = 0.0; // angle about x-axis
+  //float theta = 0.0;  // angle about z-axis
+  //float psi = 0.0; // angle about y-axis
 
 
    nrf_saadc_value_t x_val = sample_value(X_CHANNEL);
@@ -108,9 +111,20 @@ int main (void) {
   
   // Initialize the SD Card for logging data in TESTFILE.csv
   init_SDCard();
+  bool button0, switch0;
+  bool bToggle= true;
+
+
+  void printAccel(){
+  printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", ax, ay, az);
+  printf("Psi %f\t Phi  %f\t Delta %f\n\n", Angles.psi, Angles.phi, Angles.degree);}
 
   // loop forever
   while (1) {
+    
+    button0 = getInput(28);
+    switch0 = getInput(22);
+    deviceLoop(bToggle);
     // sample analog inputs
    x_val = sample_value(X_CHANNEL);
    y_val = sample_value(Y_CHANNEL);
@@ -126,8 +140,59 @@ int main (void) {
     az = (vz - bz)/mz;
     // display results
      
-    printf("a_x: %f\ta_y: %f\ta_z:%f\n", ax, ay, az);
-	    
+    
+
+    if(switch0){ 
+
+
+
+      if(!button0)
+      {
+        printf("%d Btoggle\n" , bToggle);
+        bToggle = !bToggle;
+        nrf_delay_ms(500);
+
+      }
+
+    
+      if(bToggle){
+        printAccel();
+        assign3D(&Angles, ax, ay, az);
+        
+
+      }
+
+      
+     
+
+
+    
+    }
+    else{
+
+
+      if(!button0){
+        assign3D(&Angles, ax, ay, az);
+        printAccel();
+
+
+
+             nrf_delay_ms(300);
+
+      }else{
+        
+
+      }
+
+    }
+    
+
+
+
+
+
+
+     /* 
       if (!gpio_read(BUCKLER_BUTTON0)) {
        
         timestamp = get_timestamp();      
@@ -140,7 +205,11 @@ int main (void) {
         nrf_delay_ms(100);
       }
       else
-        gpio_set(BUCKLER_LED0);  
+        gpio_set(BUCKLER_LED0); 
+        */
+
+
+
   }   
 }
 

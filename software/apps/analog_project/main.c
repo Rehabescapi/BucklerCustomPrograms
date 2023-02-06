@@ -45,17 +45,26 @@ nrf_saadc_value_t sample_value (uint8_t channel) {
 
 
 float revert (float Voltage){ 
+  float VoltAndSlope = 131* 2.9;
   //conversion slope is 1V / (131 mV/g)
-  float A = .001 *407; // mV/g
+  float A = .001 *VoltAndSlope; // mV/g
   float B = 1.45; //listed default bias 3 at 2.9V it would be 1/2
+  
   return (Voltage - B )/A;
 }
 
-float getAngle(float A , float B){
-  float rad,degree;
-  rad =  (float)atan2(A, B);
+float getAngle(float X , float Y){
+  float rad, rad2,degree;
+  rad =  (float)atan2f(X, Y);
 
-  return rad *  (180.0/ M_PI);
+
+  
+  //printf("Arc Tan %f and %f is  %f\n\n",X, Y, rad* (180.0/ M_PI));
+
+
+
+  
+  return  rad * (180.0/ M_PI);
 
 
 }
@@ -69,6 +78,7 @@ float singleAngle( float A){
 
 
 int main (void) {
+   struct ThirdAngle Angles;
   setDevices();
   ret_code_t error_code = NRF_SUCCESS;
 
@@ -118,14 +128,17 @@ int main (void) {
 
   
 void printAccel(){
-  printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", revert(volt_x), revert(volt_y), revert(volt_z));
+  printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", volt_x, volt_y, volt_z);
 
-  printf("Single Angle measurement of X%f\t Y = %f\t Z = %F\t\n\n", g_z, g_y, g_x);
+  printf("Single Angle measurement of X%f\t Y = %f\t Z = %f\t\n\n", g_z, g_y, g_x);
 
 
+  printf("Double Angle of Things %f\t   %f\t\n\n", getAngle(volt_y, volt_z), getAngle(volt_x, volt_z));
 
+
+  
 }
-
+ 
   while (1) {
     button0 = getInput(28);
     switch0 = getInput(22);
@@ -138,14 +151,18 @@ void printAccel(){
     nrf_saadc_value_t z_val = sample_value(Z_CHANNEL);
 
 
-     volt_x = (float) x_val *LSB;
-     volt_y = (float) y_val *LSB;
-     volt_z = (float) z_val *LSB;
+     volt_x = revert((float) x_val *LSB);
+     volt_y = revert((float) y_val *LSB);
+     volt_z = revert((float) z_val *LSB);
 
     // display results
-     g_z = revert(volt_z);
-     g_y = revert(volt_y);
-     g_x = revert(volt_x);
+     g_z = singleAngle(volt_z);
+     g_y = singleAngle(volt_y);
+     g_x = singleAngle(volt_x);
+
+     
+
+
 
 
 
@@ -162,8 +179,12 @@ void printAccel(){
 
 
       if(!button0){
-        
+        assign3D(&Angles, volt_x, volt_y, volt_z);
         printAccel();
+
+
+
+        printf("PSI    %f\t PHI  %f\t, Degree %f\n\n", Angles.psi, Angles.phi, Angles.degree);
 
         nrf_delay_ms(300);
 

@@ -14,6 +14,8 @@
 #include "nrf_serial.h"
 
 
+#include "math.h"
+
 #include "buckler.h"
 
 
@@ -25,9 +27,9 @@ static uint32_t* CNF0 = (uint32_t*) 0x5000070C;
 static uint32_t* IN = (uint32_t*) 0x50000510;
 static uint32_t* DIR = (uint32_t*) 0x5000514;
 
-
-
-
+typedef struct ThirdAngle{
+   float phi, psi , degree;
+}ThirdAngle;
 
 
 void setDevices(){
@@ -97,4 +99,17 @@ void deviceLoop(){ //handles color and r
 bool getInput(int x){
 	//todo Make this work for more things. 
 	return gpio_read(x);
+}
+
+
+void assign3D(struct ThirdAngle * Basic, float X,float Y, float Z){
+  
+   Basic->degree = atanf( X/ sqrtf( Y*Y + Z*Z)) *(180/M_PI);
+   Basic->psi = atanf( Y / sqrtf(X*X + Z*Z)) * (180/M_PI);
+
+   Basic->phi = atanf(sqrtf(X*X + Y*Y)/Z) * (180/M_PI);
+
+  
+  
+
 }

@@ -8,12 +8,26 @@ nRF SAADC (Successive Approximation Analog to Digital Converter) [API documentat
 
 
 
+
+Things completed.
+Groc enough of the angle math. 
+Groc the Angle math.. With Vivien. Finished Phi, psi and degree from a flat position.
+
+
+
+
 Things todo.
 
 
-Groc the Angle math.. With Vivien. 
 
-Set up the I/O to memory Stick.
+Format for data .-- Given by the instructor
+
+
+Create Data stream to write to a file. --- Assignment given by Instructor. 
+
+
+Set up the I/O to memory Stick. --Given by the instructor. 
+
 
 
 

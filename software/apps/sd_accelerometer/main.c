@@ -75,6 +75,7 @@ int main (void) {
   // initialization complete
   printf("Buckler initialized!\n");
 
+
   
   
   ////////////////////
@@ -112,12 +113,20 @@ int main (void) {
   // Initialize the SD Card for logging data in TESTFILE.csv
   init_SDCard();
   bool button0, switch0;
-  bool bToggle= true;
+  bool bToggle= false;
 
 
   void printAccel(){
   printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", ax, ay, az);
-  printf("Psi %f\t Phi  %f\t Delta %f\n\n", Angles.psi, Angles.phi, Angles.degree);}
+  printf("Psi %f\t Phi  %f\t Delta %f\n\n", Angles.psi, Angles.phi, Angles.degree);
+}
+
+  void logThings(){
+    simple_logger_log("%f,%f mV/g,%f mV/g,%f mV/g, %f,%f,%f ,\n", timestamp, ax, ay, az, Angles.phi, Angles.psi, Angles.degree);
+
+  }
+  
+  simple_logger_log("Starting Loop");
 
   // loop forever
   while (1) {
@@ -142,7 +151,7 @@ int main (void) {
      
     
 
-    if(switch0){ 
+    if(switch0){ //if switch0 is in high mode.
 
 
 
@@ -151,13 +160,19 @@ int main (void) {
         printf("%d Btoggle\n" , bToggle);
         bToggle = !bToggle;
         nrf_delay_ms(500);
+        simple_logger_log("%d Btoggle\n\n", bToggle);
 
       }
 
     
-      if(bToggle){
-        printAccel();
+      if(bToggle){// If switch is in high mode then hitting 
+        
         assign3D(&Angles, ax, ay, az);
+        printAccel();
+          timestamp = get_timestamp();    
+          logThings()  ;
+        
+
         
 
       }
@@ -174,6 +189,11 @@ int main (void) {
       if(!button0){
         assign3D(&Angles, ax, ay, az);
         printAccel();
+
+        timestamp = get_timestamp();   
+         simple_logger_log(" Static Timestamp\n\n");   
+        logThings();
+        simple_logger_log("End of click \n\n");
 
 
 
@@ -195,8 +215,7 @@ int main (void) {
      /* 
       if (!gpio_read(BUCKLER_BUTTON0)) {
        
-        timestamp = get_timestamp();      
-        simple_logger_log("%f,%f,%f,%f\n", timestamp, ax, ay, az);
+        
       
         printf("%f - Wrote line to SD card\n", timestamp);
         // Signal that lines were written

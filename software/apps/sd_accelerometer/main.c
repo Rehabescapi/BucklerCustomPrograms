@@ -39,7 +39,7 @@ void saadc_callback (nrfx_saadc_evt_t const * p_event) {
 
 
 int main (void) {
-  struct ThirdAngle Angles;
+  struct ThirdAngle Angles, xAngles, yAngles;
   setDevices();
 
   ret_code_t error_code = NRF_SUCCESS;
@@ -124,11 +124,11 @@ int main (void) {
 
   void logThings(){
     float f = timestamp-baseTimeStamp;
-    simple_logger_log("%f,%f, %f,%f,%f,%f,%f,%f,\n", timestamp, f, ax, ay, az, Angles.phi, Angles.psi, Angles.degree);
-
+    simple_logger_log("%f,%f, %f,%f,%f,%f,%f,%f,", timestamp, f, ax, ay, az, Angles.phi, Angles.psi, Angles.degree);
+    simple_logger_log(",%f,%f, %f,%f,%f,%f,\n", xAngles.phi, xAngles.psi, xAngles.degree, yAngles.phi, yAngles.psi, yAngles.degree);
   }
   
-  simple_logger_log("Time,AdjTime, X,Y,Z,phi,psi,degree,\n");
+  simple_logger_log("Time,AdjTime, X,Y,Z,phi,psi,degree, ,xPhi,xPsi,xDegree, yPhi,yPsi,yDegree,\n");
 
   // loop forever
   while (1) {
@@ -171,6 +171,8 @@ int main (void) {
       if(bToggle){// If switch is in high mode then hitting 
         
         assign3D(&Angles, ax, ay, az);
+        assign3D(&xAngles, ay, az, ax);
+        assign3D(&yAngles, az,ax,ay);
         printAccel();
           timestamp = get_timestamp();    
           logThings()  ;
@@ -214,21 +216,6 @@ int main (void) {
 
 
 
-
-     /* 
-      if (!gpio_read(BUCKLER_BUTTON0)) {
-       
-        
-      
-        printf("%f - Wrote line to SD card\n", timestamp);
-        // Signal that lines were written
-        
-        gpio_clear(BUCKLER_LED0);      
-        nrf_delay_ms(100);
-      }
-      else
-        gpio_set(BUCKLER_LED0); 
-        */
 
 
 

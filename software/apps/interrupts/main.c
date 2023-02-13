@@ -26,21 +26,23 @@ void SWI1_EGU1_IRQHandler(void) {
 
 void GPIOTE_IRQHandler(void) {//Already written in part 
     NRF_GPIOTE->EVENTS_IN[0] = 0;
-
+    printf("Woo");
     gpio_set(25);
     nrf_delay_ms(300);
     gpio_clear(25);
 
 
-    printf("Woo");
+    
     
 }
 
-void GPIOTE_LABHandler(void){
-  NRF_GPIOTE->CONFIG[0]=1;
-  NRF_GPIOTE->CONFIG[0] = 3 << 16;
+void LABHandler(void){
+  NRF_GPIOTE->CONFIG[0]=1;// mode is set to event mode.
+  NRF_GPIOTE->CONFIG[0] = 2 << 16;
   //NRF_GPIOTE->CONFIG[0] = 1 << 17;//Sets Polarity to HiToLow
   // Sets to event mode
+
+  NRF_GPIOTE->CONFIG[0] = 28 << 8;//looking at the Button
   NRF_GPIOTE->INTENSET = 1;
   NVIC_EnableIRQ(GPIOTE_IRQn);
   printf("Lab_Handled\n\n");
@@ -65,7 +67,7 @@ int main(void) {
   printf("Log initialized!\n");
 
 //Q5, Q6 configure a GPIOTE event to occur for a button press.
-  GPIOTE_LABHandler();
+  LABHandler();
   //setDevices();
 
 

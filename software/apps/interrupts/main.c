@@ -22,14 +22,16 @@
 
 void SWI1_EGU1_IRQHandler(void) {
     NRF_EGU1->EVENTS_TRIGGERED[0] = 0;
+    printf("software_interrupt duu duu\n");
+    nrf_delay_ms(2000);
 }
 
 void GPIOTE_IRQHandler(void) {//Already written in part 
     NRF_GPIOTE->EVENTS_IN[0] = 0;
-    printf("Woo");
-    gpio_set(25);
-    nrf_delay_ms(300);
+    printf("Butttton interrupt received\n\n");
     gpio_clear(25);
+    nrf_delay_ms(2000);
+    gpio_set(25);
 
 
     
@@ -37,22 +39,23 @@ void GPIOTE_IRQHandler(void) {//Already written in part
 }
 
 void LABHandler(void){
-  NRF_GPIOTE->CONFIG[0]=1;// mode is set to event mode.
-  NRF_GPIOTE->CONFIG[0] = 2 << 16;
-  //NRF_GPIOTE->CONFIG[0] = 1 << 17;//Sets Polarity to HiToLow
-  // Sets to event mode
+  
+  printf("Starting conditions \nConfig[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
+  
 
-  NRF_GPIOTE->CONFIG[0] = 28 << 8;//looking at the Button
+  // 0x00021C01 or 138241
+  NRF_GPIOTE->CONFIG[0]=0x00021C01;// mode is set to event mode.
   NRF_GPIOTE->INTENSET = 1;
+  printf("Config[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
   NVIC_EnableIRQ(GPIOTE_IRQn);
+
   printf("Lab_Handled\n\n");
 }
 
 void setDevices(void){
     //Setting up Lights
   gpio_config(25, 1);
-  gpio_config(22,0);
-  gpio_config(28,0);
+  gpio_set(25);
 }
 
 int main(void) {
@@ -65,18 +68,27 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Log initialized!\n");
+  software_interrupt_init();
 
 //Q5, Q6 configure a GPIOTE event to occur for a button press.
   LABHandler();
-  //setDevices();
+  setDevices();
 
 
-  
+  //Q7, Q8
+
+    NVIC_SetPriority(SWI1_EGU1_IRQn, 0);
+    NVIC_SetPriority(GPIOTE_IRQn,0);
+
   // loop forever
   while (1) {
+    
+    
+
     printf("Looping\n");
     nrf_delay_ms(1000);
     software_interrupt_generate();
+    __WFI();
   }
 }
 

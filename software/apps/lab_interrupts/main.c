@@ -29,28 +29,13 @@ void SWI1_EGU1_IRQHandler(void) {
 }
 
 void GPIOTE_IRQHandler(void) {//Already written in part 
-    
-
-    if(NRF_GPIOTE->EVENTS_IN[0] == 1){
-      NRF_GPIOTE->EVENTS_IN[0] = 0;
-
-       printf("Button interrupt received\n\n");
+    NRF_GPIOTE->EVENTS_IN[0] = 0;
+    printf("Butttton interrupt received\n\n");
     //nrf_delay_ms(100);
     gpio_clear(25);
     nrf_delay_ms(2000);
     gpio_set(25);
 
-    }else{
-      NRF_GPIOTE->EVENTS_IN[1] =0;
-      printf("switch interrupt received\n\n");
-      gpio_clear(24);
-      nrf_delay_ms(2000);
-      gpio_set(24);
-
-
-
-    }
-   
 
     
     
@@ -62,11 +47,8 @@ void LABHandler(void){
   
 
   // 0x00021C01 or 138241
-  NRF_GPIOTE->CONFIG[0]=0x00021C01;//Even, Button0, onHiToLow
+  NRF_GPIOTE->CONFIG[0]=0x00021C01;// mode is set to event mode.
   NRF_GPIOTE->INTENSET = 1;
-  NRF_GPIOTE->INTENSET = 1 <<1;
-
-  NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
   printf("Config[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
   NVIC_EnableIRQ(GPIOTE_IRQn);
 
@@ -77,10 +59,8 @@ void setDevices(void){
     //Setting up Lights
   gpio_config(25, 1);
   gpio_config(23,1);
-  gpio_config(24,1);
   gpio_set(25);
   gpio_set(23);
-  gpio_set(24);
 }
 
 int main(void) {

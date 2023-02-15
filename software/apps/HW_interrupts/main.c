@@ -31,6 +31,7 @@ void SWI1_EGU1_IRQHandler(void) {
 void GPIOTE_IRQHandler(void) {//Already written in part 
     NRF_GPIOTE->EVENTS_IN[0] = 0;
     printf("Butttton interrupt received\n\n");
+    //nrf_delay_ms(100);
     gpio_clear(25);
     nrf_delay_ms(2000);
     gpio_set(25);
@@ -81,7 +82,7 @@ int main(void) {
 
   //Q7, Q8
 
-    NVIC_SetPriority(SWI1_EGU1_IRQn, 3);
+    NVIC_SetPriority(SWI1_EGU1_IRQn, 4);
     NVIC_SetPriority(GPIOTE_IRQn,0);
 
     
@@ -89,13 +90,10 @@ int main(void) {
   // loop forever
   while (1) {
     printf("Looping\n");
+    //software_interrupt_generate();
     
-    software_interrupt_generate();
-    software_interrupt_generate();
-    
-
-    
-    //__WFI();
+    __WFI();
+    nrf_delay_ms(1000);
 
   }
 }

@@ -67,9 +67,9 @@ void LABHandler(void){
   NRF_GPIOTE->INTENSET = 1 <<1;
 
   NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
-  printf("Config[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
-  NVIC_EnableIRQ(GPIOTE_IRQn);
+  
 
+  NVIC_EnableIRQ(GPIOTE_IRQn);
   printf("Lab_Handled\n\n");
 }
 

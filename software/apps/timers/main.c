@@ -33,6 +33,8 @@ uint32_t read_timer(){
 	// fill in this function for reading the timer value on calling this function
 }
 
+
+
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
 

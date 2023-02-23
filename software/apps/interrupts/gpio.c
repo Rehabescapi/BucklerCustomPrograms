@@ -36,16 +36,3 @@ bool gpio_read(uint8_t gpio_num) {
     // should return pin state
     return (*IN >> gpio_num) &1;
 }
-
-void GPIOTE_IRQHandler(void) {//Already written in part 
-    NRF_GPIOTE->EVENTS_IN[0] = 0;
-    printf("Butttton interrupt received\n\n");
-    //nrf_delay_ms(100);
-    gpio_clear(25);
-    nrf_delay_ms(2000);
-    gpio_set(25);
-
-
-    
-    
-}

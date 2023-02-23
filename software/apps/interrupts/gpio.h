@@ -91,4 +91,3 @@ bool gpio_read(uint8_t gpio_num);
 
 bool gpio_readButton();
 void setDevices();
-void GPIOTE_IRQHandler();

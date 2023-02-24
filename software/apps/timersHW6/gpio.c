@@ -105,17 +105,17 @@ bool getInput(int x){
 
 void LABHandler(void){
   
-  printf("Starting conditions \nConfig[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
-  
+   
 
   // 0x00021C01 or 138241
   NRF_GPIOTE->CONFIG[0]=0x00021C01;// mode is set to event mode.
   NRF_GPIOTE->INTENSET = 1;
-  printf("Config[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
   NVIC_EnableIRQ(GPIOTE_IRQn);
-
-  printf("Lab_Handled\n\n");
-
   NVIC_SetPriority(GPIOTE_IRQn,0);
+
+  //NRF_TIMER4->CONFIG[0] = 0x00021C01;
+  NRF_TIMER4->INTENSET =0x30;
+  NVIC_EnableIRQ(TIMER4_IRQn);
+  NVIC_SetPriority(TIMER4_IRQn, 1);
 }
 

@@ -36,4 +36,3 @@ bool gpio_read(uint8_t gpio_num) {
     // should return pin state
     return (*IN >> gpio_num) &1;
 }
-

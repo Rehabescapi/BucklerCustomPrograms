@@ -8,7 +8,7 @@ void timer_init(){
   NRF_TIMER4->MODE        = 0x00;   // configure as a timer not counter
    
 ////////////////////////////////////////////////////// 
-  
+ 
   NRF_TIMER4->TASKS_CLEAR = 0x01;   // timer4 is reset
   NRF_TIMER4->TASKS_START = 0x01;   // timer4 starts again 
   

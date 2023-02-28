@@ -1,6 +1,6 @@
 // Light sensor app
 //
-// Reads from the MAX44009 light sensor on Buckler
+// Reads from the OPT3004 light sensor on Buckler
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -14,7 +14,7 @@
 #include "nrf_twi_mngr.h"
 
 #include "buckler.h"
-#include "max44009.h"
+#include "opt3004.h"
 
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
@@ -35,21 +35,24 @@ int main(void) {
   i2c_config.frequency = NRF_TWIM_FREQ_100K;
   error_code = nrf_twi_mngr_init(&twi_mngr_instance, &i2c_config);
   APP_ERROR_CHECK(error_code);
+  
 
-  // initialize MAX44009 driver
-  const max44009_config_t config = {
-    .continuous = 0,
-    .manual = 0,
-    .cdr = 0,
-    .int_time = 3,
+  // initialize OPT3004 driver
+  const opt3004_config_t config = {
+      .range_number = OPT3004_AUTORANGE,       // Sensor range. Use OPT3004_AUTORANGE to enable autoranging
+      .conversion_time = 100,    // Conversion time of sensor. 100 or 800ms
+      .latch_interrupt = 0,    // Latch interrupts until config register is read
+      .interrupt_polarity= 0, // Interrupt polarity. Active high or low
+      .fault_count=4,        // Number of faults before interrupt trigger
   };
-  max44009_init(&twi_mngr_instance, BUCKLER_LIGHT_INTERRUPT);
-  max44009_config(config);
-  printf("MAX44009 initialized\n");
+
+  opt3004_init(&twi_mngr_instance);//, BUCKLER_LIGHT_INTERRUPT);
+  opt3004_config(config);
+  printf("OPT3004 initialized\n");
 
   // loop forever
   while (1) {
-    float lux = max44009_read_lux();
+    float lux = opt3004_read_result();
     printf("Reading (lux): %f\n", lux);
     nrf_delay_ms(100);
   }

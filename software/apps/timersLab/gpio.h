@@ -1,20 +1,8 @@
 #pragma once
 
 #include "nrf.h"
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
+#include "stdbool.h"
 
-#include "app_error.h"
-#include "app_timer.h"
-#include "nrf.h"
-#include "nrf_delay.h"
-#include "nrf_gpio.h"
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
-#include "nrf_pwr_mgmt.h"
-#include "nrf_serial.h"
 
 typedef struct 
 {
@@ -70,10 +58,13 @@ typedef enum {
     OUTPUT,
 } gpio_direction_t;
 
+
+
+
 // Inputs: 
 //  gpio_num - gpio number 0-31
-//  dir - gpio direction (INPUT, OUTPUT)
-void gpio_config(uint8_t gpio_num, gpio_direction_t dir);
+//  dir - INPUT =0, OUTPUT =1
+void gpio_config(uint8_t gpio_num, bool dir);
 
 // Inputs: 
 //  gpio_num - gpio number 0-31
@@ -89,5 +80,7 @@ void gpio_clear(uint8_t gpio_num);
 //  current state of the specified gpio pin
 bool gpio_read(uint8_t gpio_num);
 
-bool gpio_readButton();
+void gpio_OUT(uint8_t pin_numb, int val);
+
 void setDevices();
+void LABHandler(void);

@@ -74,6 +74,10 @@ int main(void) {
   gpio_clear(23);
   
 
+  // Procedure to setup output
+
+  
+	
   // loop forever
   while (1){
     

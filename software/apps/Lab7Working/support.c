@@ -68,26 +68,18 @@ void setDevices(){
 
 void deviceLoop(bToggle){ //handles color and r
 	bool x = gpio_read(22);
-    bool y = gpio_read(28);
+   bool y = gpio_read(28);
 
     
     if(x) // if Switch is Low
     {
        gpio_clear( 23);
        gpio_set( 25);
-
-      
-
-
-
     }
     else //Switch is high
     {
      gpio_set (23); 
      gpio_clear(25);
-
-     
-
     }
 
     if(bToggle)
@@ -96,10 +88,6 @@ void deviceLoop(bToggle){ //handles color and r
      }else{
       gpio_set(24);
      }
-     
-    
-
-   printf("Woo");
 }
 
 

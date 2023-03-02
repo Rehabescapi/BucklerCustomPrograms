@@ -123,11 +123,12 @@ int main(void) {
   lsm9ds1_start_gyro_integration();
 
 
-  printf("woo\n");
+  
   
   //Calibration shenanigans
   struct ThirdAngle Angles, xAngles, yAngles;
   float ax =0, ay =0, az = 0;
+  float gx = 0 ,gy = 0, gz = 0;
   Angles.phi = 0;
   Angles.psi = 0;
   Angles.degree = 0;
@@ -143,32 +144,23 @@ int main(void) {
 
   void printAccel(){
   printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", ax, ay, az);
-  printf("Psi %f\t Phi  %f\t Delta %f\n\n", Angles.psi, Angles.phi, Angles.degree);
+  printf("Psi %f\t Phi  %f\t Delta %f\t", Angles.psi, Angles.phi, Angles.degree);
+  printf(" Gx 6.3%f, gY 6.3%f, Gz %f\n\n", gx, gy, gz);
 }
 
   void logThings(){
     float f = timestamp-baseTimeStamp;
-    simple_logger_log("%f,%f, %f,%f,%f,%f,%f,%f,", timestamp, f, ax, ay, az, Angles.phi, Angles.psi, Angles.degree);
+    simple_logger_log("%f,%f, %f,%f,%f,%f,%f,%f,", timestamp, f, ax, ay, az, gx, gy, gz);
+    simple_logger_log("%f, %f, %f.\n", Angles.psi, Angles.phi, Angles.degree);
     
   }
   
-  simple_logger_log("Time,AdjTime, X,Y,Z,phi,psi,degree, ,xPhi,xPsi,xDegree, yPhi,yPsi,yDegree,\n");
-
-
-  //end of gyroscope.
-
-
-
-
-
-  //Variables initialized
-
-
-
+  simple_logger_log("Time,AdjTime, X,Y,Z,gx,gy,gz, psi, phi, delta,\n");
 
   // Write test numbers in a loop
   unsigned int i = 0;
   char clearbuf[16] ={0};
+  printf("loop started");
   while(1) {
 
 
@@ -177,9 +169,15 @@ int main(void) {
     deviceLoop(bToggle);
    
     lsm9ds1_measurement_t acc_measurement = lsm9ds1_read_accelerometer();
+    lsm9ds1_measurement_t gyr_measurement = lsm9ds1_read_gyro_integration();
+
     ax = acc_measurement.x_axis;
     ay = acc_measurement.y_axis;
     az = acc_measurement.z_axis;
+
+    gx = gyr_measurement.x_axis;
+    gy = gyr_measurement.y_axis;
+    gz = gyr_measurement.z_axis;
 
 
     if(switch0){ //if switch0 is in high mode.
@@ -195,8 +193,8 @@ int main(void) {
       if(bToggle){// If switch is in high mode then hitting 
         assign3D(&Angles, ax, ay, az);
         printAccel();
-          timestamp = get_timestamp();    
-          logThings()  ;
+        timestamp = get_timestamp();    
+        logThings();
       }
     }
 
@@ -216,10 +214,6 @@ int main(void) {
       }
 
     }
-
-    
-
-    nrf_delay_ms(500);
   }
 
 /*

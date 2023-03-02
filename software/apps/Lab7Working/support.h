@@ -21,13 +21,6 @@
 #include "nrf_serial.h"
 
 
-typedef struct Accelerometer{
-	float X;
-	float Y;
-	float Z;
-
-};
-
 
 typedef struct ThirdAngle{
 	float phi, psi , degree;
@@ -48,3 +41,4 @@ void Record();
 
 
 void assign3D(struct ThirdAngle * Basic, float X, float Y, float Z);
+bool safetyCheck(struct ThirdAngle);

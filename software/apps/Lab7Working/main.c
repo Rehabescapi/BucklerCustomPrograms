@@ -58,8 +58,6 @@ void saadc_callback (nrfx_saadc_evt_t const * p_event) {
 #include "display.h"
 
 
-
-
 //from i2c
  #include "lsm9ds1.h"
  #include "nrf_twi_mngr.h"
@@ -91,25 +89,6 @@ int main(void) {
     .mode = NRF_DRV_SPI_MODE_2,
     .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
   };
-
-
-
-
-/*
-  //Might be redundant.
-  nrf_drv_spi_config_t ACCE_CONFIG = {
-    .sck_pin = BUCKLER_LCD_SCLK,
-    .mosi_pin = BUCKLER_LCD_MOSI,
-    .miso_pin = BUCKLER_LCD_MISO,
-    .ss_pin = BUCKLER_LCD_CS,
-    .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
-    .orc = 0,
-    .frequency = NRF_DRV_SPI_FREQ_4M,
-    .mode = NRF_DRV_SPI_MODE_2,
-    .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
-
-  }*/
-
   nrf_drv_spi_config_t spi_config = LCD_CONFIG;
  
   error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
@@ -146,7 +125,7 @@ int main(void) {
 
 
 
-
+  printf("woo\n");
   //Calibration shenanigans
   struct ThirdAngle Angles, xAngles, yAngles;
   float ax =0, ay =0, az = 0;
@@ -164,7 +143,43 @@ int main(void) {
 
   // Write test numbers in a loop
   unsigned int i = 0;
+  char clearbuf[16] ={0};
   while(1) {
+   
+/*
+  }
+
+  void question_3(){
+       char buf[16] = {0};
+    char hbuf[16]={0};
+    lsm9ds1_measurement_t acc_measurement = lsm9ds1_read_accelerometer();
+    assign3D(&Angles, acc_measurement.x_axis, acc_measurement.y_axis, acc_measurement.z_axis);
+    if(safetyCheck(Angles)){
+    snprintf(hbuf, 16,"tilt=phi|psi|delta");
+    display_write(hbuf,0);
+
+    snprintf(buf, 16, "%2.2f|%2.2f|%2.2f", Angles.phi, Angles.psi, Angles.degree);
+    display_write(buf, 1);
+    printf("Acceleration (g): %10.3f\t%10.3f\t%10.3f\n", Angles.phi, Angles.psi, Angles.degree);
+  
+
+    }else{
+      snprintf(buf, 16,"!!Danger OF OVERTURN");
+      display_write(buf, 0);
+      display_write(clearbuf,1);
+
+    }
+
+    
+
+    nrf_delay_ms(500);
+    
+  }
+
+
+
+/*    void question_2() {
+  */
     lsm9ds1_measurement_t acc_measurement = lsm9ds1_read_accelerometer();
     lsm9ds1_measurement_t gyr_measurement = lsm9ds1_read_gyro_integration();
 
@@ -176,30 +191,34 @@ int main(void) {
 
 
     char buf[16] = {0};
-    
-    display_write("", 0);
+    char headerbuf[16] = {0};
+    display_write(clearbuf,1);
+    display_write(clearbuf, 0);
 
-    nrf_delay_ms(2000);
+    
     if(i%2 == 0){
-    snprintf(buf, 16, "gX%2.2fgY%2.2fgZ%2.2f\n", gyr_measurement.x_axis, gyr_measurement.y_axis, gyr_measurement.z_axis);
+    snprintf(headerbuf, 16, "gX:%2.1f gY:",gyr_measurement.x_axis);
+    snprintf(buf, 16, "%2.1f gZ:%2.1f\n",  gyr_measurement.y_axis, gyr_measurement.z_axis);
+    //lsm9ds1_stop_gyro_integration();
+    //lsm9ds1_start_gyro_integration();
+
+
     }
     else{
-      snprintf(buf, 16, "X%2.2fY%2.2fZ%2.2f\n", acc_measurement.x_axis, acc_measurement.y_axis, acc_measurement.z_axis);
+      snprintf(headerbuf, 16, "aX:  |aY:  |aZ:");
+      snprintf(buf, 16, "%2.2f|%2.2f|%2.2f\n", acc_measurement.x_axis, acc_measurement.y_axis, acc_measurement.z_axis);
     }
     
     //todo make (buf and snprintf header buf work well togethor)
-
-    display_write(buf,0);
+    display_write(headerbuf, 0);
+    display_write(buf,1);
     i += 7;
-    nrf_delay_ms(2000);
+    nrf_delay_ms(1000);
   }
-
-    void printAccel(){
-  printf("X: %6.3f Y: %6.3fZ: %6.3f\n", ax, ay, az);
-  printf("Psi %f\t Phi  %f\t Delta %f\n\n", Angles.psi, Angles.phi, Angles.degree);
 }
+  
 
-}
+
 
 
 

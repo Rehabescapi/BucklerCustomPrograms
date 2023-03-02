@@ -110,13 +110,7 @@ bool getInput(int x){
 
 
 void assign3D(struct ThirdAngle * Basic, float X,float Y, float Z){
-   int position;
-   if(Z >=0){
-      position = 1;
-   }else 
-   {
-      position = -1;
-   }
+
   
    Basic->degree = atan2f( X, sqrtf( Y*Y + Z*Z)) *(180/M_PI);
    Basic->psi = atan2f( Y ,  sqrtf(X*X + Z*Z)) * (180/M_PI);
@@ -125,5 +119,25 @@ void assign3D(struct ThirdAngle * Basic, float X,float Y, float Z){
 
   
   
+
+}
+
+bool safetyCheck(struct ThirdAngle basic)
+{
+   if(fabs(basic.psi) >45)
+   {
+      return false;
+   }
+   if(fabs(basic.phi) >45)
+   {
+      return false;
+   }
+   if(fabs(basic.degree) >45)
+   {
+      return false;
+   }
+   return true;
+   
+   
 
 }

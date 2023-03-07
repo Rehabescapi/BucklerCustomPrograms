@@ -1,8 +1,6 @@
-// Implementing INterrupts on GPIO Events
+// Blink app
 //
-// - To generate interrupt as a an input event occurs
-// - To implement a second interrupt with conflicting priority
-// - To implement the same second interrupt wiht a lower priority
+// Blinks the LEDs on Buckler
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -88,11 +86,14 @@ int main(void) {
 
     
 
+<<<<<<< HEAD
   // Q5, Q6 - configure a GPIOTE Event to occur for a Button press
   NVIC_EnableIRQ()
 
   // Q7, Q8 - initialize a software interrupt and set its priority
 
+=======
+>>>>>>> parent of 2bdbc6b... Readied the Interrupts lab for the Lab 6.
   // loop forever
   while (1) {
     printf("Looping\n");

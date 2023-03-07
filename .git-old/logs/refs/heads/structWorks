@@ -1,0 +1,24 @@
+0000000000000000000000000000000000000000 3d012e8499070c4814fa8079a6658db4e12a8196 Jason Lehmann <Jasonmlehmann@gmail.com> 1674755145 -0800	branch: Created from HEAD
+3d012e8499070c4814fa8079a6658db4e12a8196 d94553525a19e6dfba47bfa36c0c47553386cda8 Jason Lehmann <Jasonmlehmann@gmail.com> 1674755185 -0800	commit: Working Struct
+d94553525a19e6dfba47bfa36c0c47553386cda8 281d9580e535dd2101fcaeb1e5681782195c0606 Jason Lehmann <Jasonmlehmann@gmail.com> 1674757286 -0800	commit: OUt was off by 4 bytes
+281d9580e535dd2101fcaeb1e5681782195c0606 54ef1a544692defadf311332abe52aa486a9cd53 Jason Lehmann <Jasonmlehmann@gmail.com> 1674781317 -0800	commit: Accelerometer is working
+54ef1a544692defadf311332abe52aa486a9cd53 e275d84781dfa2460fddf75ba7c0ad0a93e58e3e Jason Lehmann <Jasonmlehmann@gmail.com> 1674795529 -0800	commit: finished Lab 3
+e275d84781dfa2460fddf75ba7c0ad0a93e58e3e 045a292fdcd957479a4fbf478751ed4c43a8b80c Jason Lehmann <Jasonmlehmann@gmail.com> 1674853947 -0800	commit: Added HW code
+045a292fdcd957479a4fbf478751ed4c43a8b80c 50bea5a8d69da0c6e7ce015947bc5a9d18c29698 Jason Lehmann <Jasonmlehmann@gmail.com> 1675358372 -0800	commit: finished lab4
+76b15fd8cc6426434d6b25134f49c7166f4347cc 33150b792d09b3311cd0c175f1a45558af554f65 Jason Lehmann <Jasonmlehmann@gmail.com> 1675701371 -0800	commit: Save for SD writing
+33150b792d09b3311cd0c175f1a45558af554f65 61fc7c1564372d6d2f59a57c3aeb63edf9e69516 Jason Lehmann <Jasonmlehmann@gmail.com> 1675701393 -0800	pull bOrigin main: Merge made by the 'recursive' strategy.
+61fc7c1564372d6d2f59a57c3aeb63edf9e69516 2c7471f2a6e483ed487e2e9d6f81eca8addfe3a8 Jason Lehmann <Jasonmlehmann@gmail.com> 1675712719 -0800	commit: Suplemental information from the Professor
+2c7471f2a6e483ed487e2e9d6f81eca8addfe3a8 942b26f69b1b1163afbe740963f88c70d42b5d9c Jason Lehmann <Jasonmlehmann@gmail.com> 1675727684 -0800	commit: Utility messages work. Calculations work.
+412c13754fae7f2ff2ee6f6b328c6f9a57abb448 33df1125f34f85fa6a31a47ebce6bc0589ff7d05 Jason Lehmann <Jasonmlehmann@gmail.com> 1675969498 -0800	commit: Updated good enough
+33df1125f34f85fa6a31a47ebce6bc0589ff7d05 7576b75985b33a35c8d1f63b42102582c6bf0a75 Jason Lehmann <Jasonmlehmann@gmail.com> 1675984748 -0800	commit: Figured how to move my hand to get correct X/Y
+7576b75985b33a35c8d1f63b42102582c6bf0a75 9fa9ad9922b928caebb417431eede6bea32e9f30 Jason Lehmann <Jasonmlehmann@gmail.com> 1676332008 -0800	commit: stuck on Lab5 Q5
+9fa9ad9922b928caebb417431eede6bea32e9f30 4e6c54c40b93dbea66526683c6e98c082c5481fc Jason Lehmann <Jasonmlehmann@gmail.com> 1676332745 -0800	commit: Things should be working but are not set up
+4e6c54c40b93dbea66526683c6e98c082c5481fc 7ba74dcb39bbee8fc44f6185076f120d5e5b7d5d Jason Lehmann <Jasonmlehmann@gmail.com> 1676414503 -0800	commit: Q7 should be working
+7ba74dcb39bbee8fc44f6185076f120d5e5b7d5d 48dc5ba4bf70aac688f7b6bc405bea62612e0e02 Jason Lehmann <Jasonmlehmann@gmail.com> 1676417235 -0800	commit: coppied intterupt HW
+48dc5ba4bf70aac688f7b6bc405bea62612e0e02 c43f49890102345f175391c318c8427172cd89bf Jason Lehmann <Jasonmlehmann@gmail.com> 1676490469 -0800	commit: lab 6 finished
+c43f49890102345f175391c318c8427172cd89bf fc266e409d36bc70aa134c9e64579f43c5453996 Jason Lehmann <Jasonmlehmann@gmail.com> 1676492082 -0800	commit: Added HW
+fc266e409d36bc70aa134c9e64579f43c5453996 dcd30794703bed95a21308139747986392553055 Jason Lehmann <Jasonmlehmann@gmail.com> 1677623588 -0800	commit: wut
+dcd30794703bed95a21308139747986392553055 334d61edcdd505f389a1e7a439c7d31f393be6a6 Jason Lehmann <Jasonmlehmann@gmail.com> 1677623592 -0800	pull: Merge made by the 'recursive' strategy.
+334d61edcdd505f389a1e7a439c7d31f393be6a6 ca96791889e108a0b04f50dfa18a4d6b7db6f61b Jason Lehmann <Jasonmlehmann@gmail.com> 1677623737 -0800	commit: saved by a local backup?
+ca96791889e108a0b04f50dfa18a4d6b7db6f61b 67b90526b75e3e17b4eb4493a684ffed56956b1c Jason Lehmann <Jasonmlehmann@gmail.com> 1677729013 -0800	commit: Prep for Lab7Q3
+67b90526b75e3e17b4eb4493a684ffed56956b1c fb3f45f95061d117d69ac78b6dbed01ad5eec3dd Jason Lehmann <Jasonmlehmann@gmail.com> 1677731585 -0800	commit: Mini projec

@@ -1,0 +1,20 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "bOrigin"]
+	url = https://github.com/RoboticAssistedLocomotionLab/CSE351Buckler.git
+	fetch = +refs/heads/*:refs/remotes/bOrigin/*
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main
+[remote "origion"]
+	url = https://github.com/Rehabescapi/BucklerCustomPrograms.git
+	fetch = +refs/heads/*:refs/remotes/origion/*
+[remote "origin"]
+	url = https://Rehabescapi@github.com/Rehabescapi/BucklerCustomPrograms.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "structWorks"]
+	remote = origin
+	merge = refs/heads/structWorks

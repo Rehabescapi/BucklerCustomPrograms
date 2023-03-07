@@ -1,0 +1,11 @@
+0000000000000000000000000000000000000000 2fd90c529fa1da543cf43c998e61cfa71ab0d891 umerhuzaifa <umerhuzaifa@gmail.com> 1672128481 -0800	commit (initial): Including all the Buckler files from the original Buckler repository
+2fd90c529fa1da543cf43c998e61cfa71ab0d891 2fd90c529fa1da543cf43c998e61cfa71ab0d891 umerhuzaifa <umerhuzaifa@gmail.com> 1672128501 -0800	Branch: renamed refs/heads/master to refs/heads/main
+2fd90c529fa1da543cf43c998e61cfa71ab0d891 abe142cb4cf3c13792bc076294b6c6e3cfe1d239 umerhuzaifa <umerhuzaifa@gmail.com> 1672128621 -0800	commit (merge): Included all Buckler Files
+abe142cb4cf3c13792bc076294b6c6e3cfe1d239 459245476edcbb6ddab33224109a4a209f8604ff umerhuzaifa <umerhuzaifa@gmail.com> 1672129368 -0800	commit: Included the timer app
+459245476edcbb6ddab33224109a4a209f8604ff 2579fbfab8b5ae26a7c57922b632a87449950f88 umerhuzaifa <umerhuzaifa@gmail.com> 1673460576 -0800	pull: Fast-forward
+2579fbfab8b5ae26a7c57922b632a87449950f88 117b759a917e404287e87c67c5a1dd13b7c1006a umerhuzaifa <umerhuzaifa@gmail.com> 1674154268 -0800	commit: Homework2 Commit
+117b759a917e404287e87c67c5a1dd13b7c1006a 7c6f358e8033f7fc48ffe691d371d65047700fe0 Jason Lehmann <Jasonmlehmann@gmail.com> 1674158772 -0800	commit: whoops
+7c6f358e8033f7fc48ffe691d371d65047700fe0 05197f29fb44d2eb01542c5f1cf61ac90781f236 Jason Lehmann <Jasonmlehmann@gmail.com> 1674661472 -0800	commit: fiddle
+05197f29fb44d2eb01542c5f1cf61ac90781f236 65823c22eb752d25df692afb18fe506c2bc188ee Jason Lehmann <Jasonmlehmann@gmail.com> 1674662145 -0800	pull bOrigin main: Merge made by the 'recursive' strategy.
+65823c22eb752d25df692afb18fe506c2bc188ee 973bc2b0bbff3e0a802dc1110a38a35ea3207e1b Jason Lehmann <Jasonmlehmann@gmail.com> 1674677342 -0800	commit: Working lab3 early steps
+973bc2b0bbff3e0a802dc1110a38a35ea3207e1b 3d012e8499070c4814fa8079a6658db4e12a8196 Jason Lehmann <Jasonmlehmann@gmail.com> 1674692414 -0800	commit: somethings wrong with how my struct works

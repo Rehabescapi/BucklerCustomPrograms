@@ -49,9 +49,11 @@ int main(void) {
   opt3004_init(&twi_mngr_instance);//, BUCKLER_LIGHT_INTERRUPT);
   opt3004_config(config);
   printf("OPT3004 initialized\n");
+  opt3004_continuous();
 
   // loop forever
   while (1) {
+    printf("What");
     float lux = opt3004_read_result();
     printf("Reading (lux): %f\n", lux);
     nrf_delay_ms(100);

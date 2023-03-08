@@ -23,6 +23,7 @@ int main(void)
     
 
     /* 2-channel PWM, 200Hz, output on Buckler LED pins. */
+
     app_pwm_config_t pwm_config =  APP_PWM_DEFAULT_CONFIG_2CH(5000, 23,25);
     //app_pwm_config_t pwm_config =  APP_PWM_DEFAULT_CONFIG_1CH(5000, 22);
 
@@ -40,6 +41,7 @@ int main(void)
     APP_ERROR_CHECK(err_code);
     printf("got to line 40\n");
     app_pwm_enable(&PWM1);
+
     while(app_pwm_channel_duty_set(&PWM1,1,50)== NRF_ERROR_BUSY);
     
     uint32_t value = 0;
@@ -62,6 +64,7 @@ int main(void)
             APP_ERROR_CHECK(err_code);
             nrf_delay_ms(50);
         }
+
     }
 
 }

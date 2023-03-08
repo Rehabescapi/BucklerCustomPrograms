@@ -16,6 +16,6 @@ NRF_BASE_DIR = ../../nrf52x-base/
 
 # Include board Makefile (if any)
 include ../../boards/buckler_revC/Board.mk
-
+#include ./Board.mk
 # Include main Makefile
 include $(NRF_BASE_DIR)make/AppMakefile.mk

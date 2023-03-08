@@ -13,7 +13,11 @@ static volatile bool ready_flag;
 
  void pwm_ready_callback(uint32_t pwm_id)    // PWM callback function
 {
+    
+    
     ready_flag = true;
+
+
 }
 
 
@@ -38,11 +42,14 @@ int main(void)
 
     err_code = app_pwm_init(&PWM1,&pwm_config , pwm_ready_callback);
 
+
     APP_ERROR_CHECK(err_code);
     printf("got to line 40\n");
     app_pwm_enable(&PWM1);
 
     while(app_pwm_channel_duty_set(&PWM1,1,50)== NRF_ERROR_BUSY);
+
+    
     
     uint32_t value = 0;
     printf("start of while loop");
@@ -50,19 +57,18 @@ int main(void)
     {
         
         printf("%d\t", app_pwm_busy_check(&PWM1));
+        
 
         /* Your code for modifying the duty cycle value */
         for (value = 0; value <= 100; value++)
         {
-            err_code = app_pwm_channel_duty_set(&PWM1, 0, value);
+             err_code = app_pwm_channel_duty_set(&PWM1, 0, value);
             APP_ERROR_CHECK(err_code);
             err_code = app_pwm_channel_duty_set(&PWM1, 1, value);
             APP_ERROR_CHECK(err_code);
             
             // for catching any errors returned
-            err_code = app_pwm_busy_check(&PWM1);
-            APP_ERROR_CHECK(err_code);
-            nrf_delay_ms(50);
+             nrf_delay_ms(50);
         }
 
     }

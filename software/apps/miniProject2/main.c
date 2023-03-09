@@ -51,10 +51,10 @@ void TIMER4_IRQHandler(void){
   NRF_TIMER3->TASKS_COUNT = 0x01;
   printf("3 Seconds and triggered an interupt!!! %d\n", read_counter());  
 }
-
-/*void GPIOTE_IRQHandler(void) {//Already written in part 
+/*
+void GPIOTE_IRQHandler(void) {//Already written in part 
     
-
+    /*
     if(NRF_GPIOTE->EVENTS_IN[0] == 1){
       NRF_GPIOTE->EVENTS_IN[0] = 0;
 
@@ -70,11 +70,32 @@ void TIMER4_IRQHandler(void){
       gpio_clear(24);
       nrf_delay_ms(2000);
       gpio_set(24);
-
+    
 
 
     }
 }*/
+//Functions intention is to trip when Pin# reaches a high level.
+void LABHandler(void){
+  
+  printf("Starting conditions \nConfig[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
+  
+
+  // 0x00021C01 or 138241
+  NRF_GPIOTE->CONFIG[0]=0x00021C01;//Event, Button0, onHiToLow
+
+  // 
+  NRF_GPIOTE->INTENSET = 1;
+  NRF_GPIOTE->INTENSET = 1 <<1;
+
+  NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
+  
+
+  //NVIC_EnableIRQ(GPIOTE_IRQn);
+  printf("Lab_Handled\n\n");
+}
+
+
 
 void timer_init(){
   // fill in this function to initialize a timer of your choice
@@ -123,25 +144,7 @@ uint32_t read_timer(){
     // fill in this function for reading the timer value on calling this function
 }
 
-//Functions intention is to trip when Pin# reaches a high level.
-void LABHandler(void){
-  
-  printf("Starting conditions \nConfig[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
-  
 
-  // 0x00021C01 or 138241
-  NRF_GPIOTE->CONFIG[0]=0x00021C01;//Event, Button0, onHiToLow
-
-  // 
-  NRF_GPIOTE->INTENSET = 1;
-  NRF_GPIOTE->INTENSET = 1 <<1;
-
-  NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
-  
-
-  NVIC_EnableIRQ(GPIOTE_IRQn);
-  printf("Lab_Handled\n\n");
-}
 
 
 
@@ -150,6 +153,7 @@ int main(void)
 {
     pwm_init();
     timer_init();
+
 
     //while(app_pwm_channel_duty_set(&PWM1, 1, 20) == NRF_ERROR_BUSY);
     

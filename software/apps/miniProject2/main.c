@@ -9,8 +9,6 @@
 #include "bsp.h"
 #include "nrf_delay.h"
 #include "app_pwm.h"
-
-//catch all 
 #include "nrf_gpio.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -23,9 +21,14 @@
 //bookKeeping files
 #include "pwmManager.h"
 
+#include "nrf_drv_gpiote.h"
+
+
 // Create the instance "PWM1" using TIMER1.
 static int FourSecondCount = 125000;
-static int tX = 1, tY= 2;
+#define PIN_IN  28
+#define COUNT_READ_INTERVAL 10
+static int tY= 2;
 
 uint32_t read_counter(){
     
@@ -37,14 +40,59 @@ uint32_t read_counter(){
   // fill in this function for reading the timer value on calling this function
 }
 
+void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+
+{
+    printf("\n In Pin Triggered \n\n");
+    //NRF_LOG_INFO("H");
+
+}
+
+
 void TIMER4_IRQHandler(void){
   NRF_TIMER4->EVENTS_COMPARE[tY]= 0;
   NRF_TIMER4->TASKS_CLEAR = 0x01;
   NRF_TIMER4->TASKS_START = 0x01;
   
-  NRF_TIMER3->TASKS_COUNT = 0x01;
-  printf("3 Seconds and triggered an interupt!!! %d\n", read_counter());  
+  
+  printf("3 Seconds and triggered an interupt!!! %lu\n", read_counter());  
 }
+
+
+
+
+
+static void gpiote_init(void)
+
+{
+
+    ret_code_t err_code;
+
+
+
+    err_code = nrf_drv_gpiote_init();
+
+    APP_ERROR_CHECK(err_code);
+
+
+
+    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_LOTOHI(false);
+
+    in_config.pull = NRF_GPIO_PIN_PULLDOWN;
+
+
+
+    err_code = nrf_drv_gpiote_in_init(PIN_IN, &in_config, in_pin_handler);
+
+    APP_ERROR_CHECK(err_code);
+
+    
+
+    nrf_drv_gpiote_in_event_enable(PIN_IN, false);
+
+}
+    
+    
 
 
 
@@ -58,7 +106,7 @@ void timer_init(){
   NRF_TIMER4->BITMODE = 0x02;
   NRF_TIMER4->MODE = 0x00;
   NRF_TIMER4->INTENSET =0x40000;//setup for 
-   printf("%d INTENSET should be %d  \t\n", NRF_TIMER4->INTENSET, 0x40);
+   printf("%lu INTENSET should be %lu  \t\n", NRF_TIMER4->INTENSET, 0x40);
    NRF_TIMER4->SHORTS =0x01;
 
   NRF_TIMER4->CC[tY] = 0x1E848;//Actual thing that is stopping x
@@ -98,20 +146,24 @@ uint32_t read_timer(){
 //Functions intention is to trip when Pin# reaches a high level.
 void LABHandler(void){
   
-  printf("Starting conditions \nConfig[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
+  printf("Starting conditions \nConfig[0] is %lu\n And INTENSET = %lu",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
   
 
   // 0x00021C01 or 138241
   NRF_GPIOTE->CONFIG[0]=0x00021C01;//Event, Button0, onHiToLow
 
-  // 
+  //change event from button to checking GPIO at PIN18.
   NRF_GPIOTE->INTENSET = 1;
   NRF_GPIOTE->INTENSET = 1 <<1;
 
   NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
   
 
-  NVIC_EnableIRQ(GPIOTE_IRQn);
+  NRF_GPIOTE->CONFIG[2] = 0x00011201;
+
+  NVIC_EnableIRQ(GPIOTE_IRQn);//unsure how to track will return tomorrow. 
+  //Second count prim in vs vode show some promise.
+  NVIC_SetPriority(GPIOTE_IRQn,0);
   printf("Lab_Handled\n\n");
 }
 
@@ -122,6 +174,7 @@ int main(void)
 {
     pwm_init();
     timer_init();
+    LABHandler();
 
     //while(app_pwm_channel_duty_set(&PWM1, 1, 20) == NRF_ERROR_BUSY);
     

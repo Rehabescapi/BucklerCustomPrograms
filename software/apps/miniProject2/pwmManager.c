@@ -1,11 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "app_error.h"
-
-#include "nrf_delay.h"
 #include "app_pwm.h"
-
 
 static volatile bool ready_flag; 
 static ret_code_t err_code;

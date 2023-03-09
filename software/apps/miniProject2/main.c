@@ -5,7 +5,13 @@
 
 #include "nrf.h"
 #include "app_error.h"
+
+
+
 #include "app_timer.h"
+
+
+
 #include "bsp.h"
 #include "nrf_delay.h"
 #include "app_pwm.h"
@@ -46,7 +52,29 @@ void TIMER4_IRQHandler(void){
   printf("3 Seconds and triggered an interupt!!! %d\n", read_counter());  
 }
 
+/*void GPIOTE_IRQHandler(void) {//Already written in part 
+    
 
+    if(NRF_GPIOTE->EVENTS_IN[0] == 1){
+      NRF_GPIOTE->EVENTS_IN[0] = 0;
+
+       printf("Button interrupt received\n\n");
+    //nrf_delay_ms(100);
+    gpio_clear(25);
+    nrf_delay_ms(2000);
+    gpio_set(25);
+
+    }else{
+      NRF_GPIOTE->EVENTS_IN[1] =0;
+      printf("switch interrupt received\n\n");
+      gpio_clear(24);
+      nrf_delay_ms(2000);
+      gpio_set(24);
+
+
+
+    }
+}*/
 
 void timer_init(){
   // fill in this function to initialize a timer of your choice

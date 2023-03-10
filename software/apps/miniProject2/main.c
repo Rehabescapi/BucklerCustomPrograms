@@ -31,7 +31,7 @@
 
 // Create the instance "PWM1" using TIMER1.
 static int FourSecondCount = 125000;
-static int tX = 1, tY= 2;
+static int tY= 2;
 
 uint32_t read_counter(){
     
@@ -49,12 +49,12 @@ void TIMER4_IRQHandler(void){
   NRF_TIMER4->TASKS_START = 0x01;
   
   NRF_TIMER3->TASKS_COUNT = 0x01;
-  printf("3 Seconds and triggered an interupt!!! %d\n", read_counter());  
+  printf("3 Seconds and triggered an interupt!!! %lu\n", read_counter());  
 }
-/*
+
 void GPIOTE_IRQHandler(void) {//Already written in part 
     
-    /*
+    
     if(NRF_GPIOTE->EVENTS_IN[0] == 1){
       NRF_GPIOTE->EVENTS_IN[0] = 0;
 
@@ -74,7 +74,7 @@ void GPIOTE_IRQHandler(void) {//Already written in part
 
 
     }
-}*/
+}
 //Functions intention is to trip when Pin# reaches a high level.
 void LABHandler(void){
   
@@ -91,7 +91,7 @@ void LABHandler(void){
   NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
   
 
-  //NVIC_EnableIRQ(GPIOTE_IRQn);
+  NVIC_EnableIRQ(GPIOTE_IRQn);
   printf("Lab_Handled\n\n");
 }
 
@@ -111,14 +111,9 @@ void timer_init(){
    NRF_TIMER4->SHORTS =0x01;
 
   NRF_TIMER4->CC[tY] = 0x1E848;//Actual thing that is stopping x
-  //printf("%d Setup  CC[2]\t %d\n", NRF_TIMER4->CC[tY], NRF_TIMER4->EVENTS_COMPARE[tY]);
-  
- 
- 
+
   NVIC_EnableIRQ(TIMER4_IRQn);// when CC[ty] is reached flag interrupt
   NVIC_SetPriority(TIMER4_IRQn, 0);
-
-
 
   NRF_TIMER4->TASKS_CLEAR = 0x01;
   NRF_TIMER4->TASKS_START = 0x01;
@@ -129,10 +124,6 @@ void timer_init(){
   NRF_TIMER3->MODE = 0x01;
   NRF_TIMER3->TASKS_START = 0x01;
   
-  // 93750
-  
-  
-
 }
 
 uint32_t read_timer(){
@@ -153,7 +144,7 @@ int main(void)
 {
     pwm_init();
     timer_init();
-
+    LABHandler();
 
     //while(app_pwm_channel_duty_set(&PWM1, 1, 20) == NRF_ERROR_BUSY);
     

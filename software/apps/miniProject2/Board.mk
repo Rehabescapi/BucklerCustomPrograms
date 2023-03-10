@@ -80,8 +80,9 @@ BOARD_SOURCES += \
 	nrfx_uart.c\
 	nrfx_uarte.c\
 	simple_logger.c\
+	nrfx_ppi.c\
 	#drv_clock.c and drv_spi.c nrf_twi_mgngr.c
-	#nrfx_clock.c , #nrfx_clock, nrfx_ppi.c\
+	#nrfx_clock.c , #nrfx_clock, 
 
 ifneq ($(SOFTDEVICE_MODEL),blank)
 BOARD_SOURCES += nrf_sdh.c

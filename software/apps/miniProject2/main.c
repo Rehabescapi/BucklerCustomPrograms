@@ -25,9 +25,10 @@
 #include "nrf_serial.h"
 
 #include "buckler.h"
-
+#include "nrfx_gpiote.h"
 //bookKeeping files
 #include "pwmManager.h"
+#include "gpio.h"
 
 // Create the instance "PWM1" using TIMER1.
 static int FourSecondCount = 125000;
@@ -52,9 +53,14 @@ void TIMER4_IRQHandler(void){
   printf("3 Seconds and triggered an interupt!!! %lu\n", read_counter());  
 }
 
+static void in_pin_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+{
+    nrfx_gpiote_out_task_trigger(24);
+}
+/*
 void GPIOTE_IRQHandler(void) {//Already written in part 
     
-    
+  
     if(NRF_GPIOTE->EVENTS_IN[0] == 1){
       NRF_GPIOTE->EVENTS_IN[0] = 0;
 
@@ -69,29 +75,21 @@ void GPIOTE_IRQHandler(void) {//Already written in part
       printf("switch interrupt received\n\n");
       gpio_clear(24);
       nrf_delay_ms(2000);
-      gpio_set(24);
-    
-
-
-    }
-}
+      gpio_set(24);}
+}*/
 //Functions intention is to trip when Pin# reaches a high level.
 void LABHandler(void){
   
   printf("Starting conditions \nConfig[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
-  
+  nrfx_gpiote_out_config_t out_config = NRFX_GPIOTE_CONFIG_OUT_TASK_TOGGLE(true);
+  APP_ERROR_CHECK(nrfx_gpiote_out_init(24, &out_config));
+  nrfx_gpiote_out_task_enable(24);
+    // Configure input pin
+  nrfx_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
+  in_config.pull = NRF_GPIO_PIN_PULLUP;
+  APP_ERROR_CHECK(nrfx_gpiote_in_init(28, &in_config, in_pin_handler));
+  nrfx_gpiote_in_event_enable(28, true);
 
-  // 0x00021C01 or 138241
-  NRF_GPIOTE->CONFIG[0]=0x00021C01;//Event, Button0, onHiToLow
-
-  // 
-  NRF_GPIOTE->INTENSET = 1;
-  NRF_GPIOTE->INTENSET = 1 <<1;
-
-  NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
-  
-
-  NVIC_EnableIRQ(GPIOTE_IRQn);
   printf("Lab_Handled\n\n");
 }
 

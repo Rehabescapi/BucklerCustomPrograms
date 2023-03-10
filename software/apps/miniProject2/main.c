@@ -26,6 +26,9 @@
 
 #include "buckler.h"
 
+#include "nrf_drv_gpiote.h"
+
+
 //bookKeeping files
 #include "pwmManager.h"
 
@@ -43,6 +46,40 @@ uint32_t read_counter(){
   // fill in this function for reading the timer value on calling this function
 }
 
+static void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+{
+  printf("%d and polarity %d", pin, action);
+  printf("woots");
+    //Callback function when the interrupt is triggered
+}
+
+static void gpiote_init()
+{
+    //VCE: This block is a one time configuration
+    ret_code_t err_code;
+    if(!nrf_drv_gpiote_is_init())
+    {
+        err_code = nrf_drv_gpiote_init();
+        APP_ERROR_CHECK(err_code);
+    }
+    
+    //VCE: The below block needs to be called for each pin
+    nrf_drv_gpiote_in_config_t in_config_1;
+    in_config_1.pull = NRF_GPIO_PIN_NOPULL; //User defined
+    in_config_1.sense = NRF_GPIOTE_POLARITY_LOTOHI; //User defined
+    in_config_1.hi_accuracy = true; //User defined
+    in_config_1.is_watcher = false; //Don't change this
+    in_config_1.skip_gpio_setup = false; //Don't change this
+
+    //VCE: Configuring 
+    err_code = nrf_drv_gpiote_in_init(14, &in_config_1, in_pin_handler);
+    APP_ERROR_CHECK(err_code);
+    printf("got to here");
+
+    nrf_drv_gpiote_in_event_enable(14, true);
+    
+}
+
 void TIMER4_IRQHandler(void){
   NRF_TIMER4->EVENTS_COMPARE[tY]= 0;
   NRF_TIMER4->TASKS_CLEAR = 0x01;
@@ -50,49 +87,6 @@ void TIMER4_IRQHandler(void){
   
   NRF_TIMER3->TASKS_COUNT = 0x01;
   printf("3 Seconds and triggered an interupt!!! %d\n", read_counter());  
-}
-/*
-void GPIOTE_IRQHandler(void) {//Already written in part 
-    
-    /*
-    if(NRF_GPIOTE->EVENTS_IN[0] == 1){
-      NRF_GPIOTE->EVENTS_IN[0] = 0;
-
-       printf("Button interrupt received\n\n");
-    //nrf_delay_ms(100);
-    gpio_clear(25);
-    nrf_delay_ms(2000);
-    gpio_set(25);
-
-    }else{
-      NRF_GPIOTE->EVENTS_IN[1] =0;
-      printf("switch interrupt received\n\n");
-      gpio_clear(24);
-      nrf_delay_ms(2000);
-      gpio_set(24);
-    
-
-
-    }
-}*/
-//Functions intention is to trip when Pin# reaches a high level.
-void LABHandler(void){
-  
-  printf("Starting conditions \nConfig[0] is %p\n And INTENSET = %p",NRF_GPIOTE->CONFIG[0], NRF_GPIOTE->INTENSET);
-  
-
-  // 0x00021C01 or 138241
-  NRF_GPIOTE->CONFIG[0]=0x00021C01;//Event, Button0, onHiToLow
-
-  // 
-  NRF_GPIOTE->INTENSET = 1;
-  NRF_GPIOTE->INTENSET = 1 <<1;
-
-  NRF_GPIOTE->CONFIG[1] = 0x00031601;// Event Mode, Switch, onToggle
-  
-
-  //NVIC_EnableIRQ(GPIOTE_IRQn);
-  printf("Lab_Handled\n\n");
 }
 
 
@@ -151,8 +145,11 @@ uint32_t read_timer(){
 
 int main(void)
 {
+
+    gpiote_init();
     pwm_init();
     timer_init();
+    
 
 
     //while(app_pwm_channel_duty_set(&PWM1, 1, 20) == NRF_ERROR_BUSY);

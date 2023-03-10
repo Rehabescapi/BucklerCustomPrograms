@@ -56,7 +56,7 @@ int main(void) {
     printf("What");
     float lux = opt3004_read_result();
     printf("Reading (lux): %f\n", lux);
-    nrf_delay_ms(100);
+    nrf_delay_ms(1000);
   }
 }
 

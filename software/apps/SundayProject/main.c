@@ -75,7 +75,7 @@ int main(void){
 
     
     timer_init();
-    //pwm_init();
+    pwm_init();
 
     
 

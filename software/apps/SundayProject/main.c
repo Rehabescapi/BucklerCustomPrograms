@@ -24,7 +24,7 @@ static ret_code_t err_code;
 #define BTN 28
 
 
-#define PIN_OUT 18
+#define PIN_OUT 17
 #define PIN_IN 14
 
 
@@ -32,6 +32,7 @@ static ret_code_t err_code;
 void button_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action){
     if(action == NRF_GPIOTE_POLARITY_TOGGLE  && pin == BTN){
         nrf_gpio_pin_toggle(LED);
+         NRF_TIMER3->TASKS_COUNT = 0x01;
         
     }
     if(action == NRF_GPIOTE_POLARITY_LOTOHI && pin == BTN){
@@ -43,7 +44,7 @@ void button_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action
 
 void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-    NRF_TIMER3->TASKS_COUNT = 0x01;
+   NRF_TIMER3->TASKS_COUNT = 0x01;
 }
 
 int main(void){
@@ -75,7 +76,7 @@ int main(void){
 
     
     timer_init();
-    //pwm_init();
+    pwm_init();
 
     
 
@@ -101,7 +102,7 @@ int main(void){
 
         for (value = 0; value <= 100; value++)
         {
-           // setTwoChannel( value);
+           setTwoChannel( value);
             
             // for catching any errors returned
              nrf_delay_ms(100);

@@ -14,7 +14,7 @@
 
 #define PIN_IN 28 //BUTTON_1 
 
-#define PIN_OUT BSP_LED_0
+#define PIN_OUT 25
 
 const nrf_drv_timer_t TIMER = NRF_DRV_TIMER_INSTANCE(1);
 uint8_t state = 0, state_prev=0;
@@ -24,7 +24,7 @@ float frequency = 0.0;
 
 void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-    nrf_drv_gpiote_out_toggle (34);
+    nrf_drv_gpiote_out_toggle (25);
 }
 
 void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
@@ -49,8 +49,7 @@ static void gpio_init(void)
     err_code = nrf_drv_gpiote_out_init(PIN_OUT, &out_config);
     APP_ERROR_CHECK(err_code);
 
-    err_code = nrf_drv_gpiote_out_init(34, &out_config); //Output on P1.02 for debugging
-    APP_ERROR_CHECK(err_code);
+    
     /**************************************/
 
     /* Configure input for capture */

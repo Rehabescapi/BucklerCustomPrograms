@@ -35,7 +35,7 @@ void pwm_init()
 {
     /* 2-channel PWM, 200Hz, output on Buckler LED pins. */
 
-    app_pwm_config_t pwm_config =  APP_PWM_DEFAULT_CONFIG_2CH(5000, 23,25);
+    app_pwm_config_t pwm_config =  APP_PWM_DEFAULT_CONFIG_2CH(5000, 25,23);
     
 
 
@@ -49,7 +49,8 @@ void pwm_init()
 
     /* Switch the polarity of the second channel. */
     //app_pwm_channel_duty_ticks_set(&PWM1,1 ,10);
-     app_pwm_config_t pwm_config2 =  APP_PWM_DEFAULT_CONFIG_1CH(5000, 18);
+
+     app_pwm_config_t pwm_config2 =  APP_PWM_DEFAULT_CONFIG_1CH(5000, 17);
      err_code = app_pwm_init(&PWM2, &pwm_config2, pwm_ready_callback);
      APP_ERROR_CHECK(err_code);
     

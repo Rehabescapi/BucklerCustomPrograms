@@ -50,17 +50,19 @@ int main(void){
 
 
     // Configure LED GPIO
-    nrf_gpio_cfg_output(LED);
-    nrf_gpio_pin_set(LED);
-    
+   // nrf_gpio_cfg_output(LED);
+    //nrf_gpio_pin_set(LED);
+    /*
     //Initialize GPIOTE driver
     nrf_drv_gpiote_init();
 
-
+    
     nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
     
     err_code = nrf_drv_gpiote_out_init(PIN_OUT, &out_config);
     APP_ERROR_CHECK(err_code);
+
+
 
 
 
@@ -73,8 +75,19 @@ int main(void){
     nrf_drv_gpiote_in_event_enable(PIN_IN, true);
 
 
+      //Configure button with pullup and event on both high and low transition
+    nrf_drv_gpiote_in_config_t config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
+    config.pull = NRF_GPIO_PIN_PULLUP;
+     nrf_drv_gpiote_in_init(BTN, &config, button_event_handler); //Assign button config to a GPIOTE channel
+ 
+    //Assign button config to a GPIOTE channel
+                                                               //and assigning the interrupt handler
+    nrf_drv_gpiote_in_event_enable(BTN, true);                  //Enable event and interrupt
     
-    timer_init();
+*/
+
+    
+    //timer_init();
     pwm_init();
 
     
@@ -84,24 +97,16 @@ int main(void){
     printf("Got to button here");
 
 
-    //Configure button with pullup and event on both high and low transition
-    nrf_drv_gpiote_in_config_t config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
-    config.pull = NRF_GPIO_PIN_PULLUP;
-     nrf_drv_gpiote_in_init(BTN, &config, button_event_handler); //Assign button config to a GPIOTE channel
- 
-    //Assign button config to a GPIOTE channel
-                                                               //and assigning the interrupt handler
-    nrf_drv_gpiote_in_event_enable(BTN, true);                  //Enable event and interrupt
-    
+  
 
     uint32_t value = 0;
-
+    printf("got to here");
     while(true){
 
 
         for (value = 0; value <= 100; value++)
         {
-           // setTwoChannel( value);
+            setTwoChannel( value);
             
             // for catching any errors returned
              nrf_delay_ms(100);

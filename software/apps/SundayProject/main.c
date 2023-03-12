@@ -1,6 +1,25 @@
+#include <stdint.h>
+
+#include "nrf.h"
+
 #include "nrf_gpio.h"
 #include "nrf_drv_gpiote.h"
-#define LED 25
+
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "nrf_pwr_mgmt.h"
+#include "nrf_serial.h"
+
+#include "buckler.h"
+#include "nrfx_gpiote.h"
+
+
+#include "gpio.h"
+#include "pwmManager.h"
+#include "nrf_timer.h"
+
+#define LED 24
 #define BTN 28
 // Event handler for the GPIOTE event for toggling LED
 void button_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action){
@@ -24,5 +43,8 @@ int main(void){
                                                                 //and assigning the interrupt handler
     nrf_drv_gpiote_in_event_enable(BTN, true);                  //Enable event and interrupt
     
+
+
+
     for(;;)__WFE(); //CPU sleep w
 }

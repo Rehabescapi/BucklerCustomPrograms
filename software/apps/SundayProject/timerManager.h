@@ -32,3 +32,7 @@
 typedef uint32_t unint32;
 
 uint32_t read_counter();
+
+void timer_init();
+
+uint32_t read_timer();

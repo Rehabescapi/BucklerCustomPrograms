@@ -1,4 +1,4 @@
-// Light sensor app
+s// Light sensor app
 //
 // Reads from the OPT3004 light sensor on Buckler
 

@@ -2,23 +2,11 @@
 static int FourSecondCount = 125000;
 static int tY= 2;
 
-#include "nrf.h"
-#include "nrf_delay.h"
-#include "app_pwm.h"
-
-#include "buckler.h"
-#include "nrfx_gpiote.h"
-
-#include "gpio.h"
-
-
+#include "timerManager.h"
 
 uint32_t read_counter(){
-    
-
   NRF_TIMER3->TASKS_CAPTURE[1] = 0x01;
-  NRF_TIMER3->TASKS_CAPTURE[2] = 0x01;
-  printf("\nTimer 3 %lu count \t Timer 2 Count =%lu" , NRF_TIMER3->CC[1]), NRF_TIMER3->CC[2];
+  printf("\nTimer 3 %lu count\t" , NRF_TIMER3->CC[1]);
   return NRF_TIMER3->CC[1];
 
   // fill in this function for reading the timer value on calling this function
@@ -32,10 +20,25 @@ void TIMER4_IRQHandler(void){
   
   NRF_TIMER2->TASKS_COUNT = 0x01;
 
-  printf("\n3 Seconds and triggered an interupt!!! %lu\n", read_counter());  
+  printf("\n Counter = %lu\n\n", read_counter());  
 }
 
 
+
+static float average = 0;
+static float count = 0;
+
+
+void logToSD(){
+    count = count +1;
+    uint32_t time = NRF_TIMER3->CC[0];
+    average = ((average * (count -1)) + time )/ (count );
+    //replae with logger if I get it working
+    //simple_logger_log("%d, %d, %f,\n", count, time, average);
+
+    printf("%d, %d, %f,\n", count, time, average);
+
+}
 
 
 

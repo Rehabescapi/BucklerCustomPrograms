@@ -4,39 +4,41 @@ static int tY= 2;
 
 #include "timerManager.h"
 
-uint32_t read_counter(){
-  NRF_TIMER3->TASKS_CAPTURE[1] = 0x01;
-  printf("\nTimer 3 %lu count\t" , NRF_TIMER3->CC[1]);
-  return NRF_TIMER3->CC[1];
 
-  // fill in this function for reading the timer value on calling this function
-}
-
-
+//Interrupts flow every second.
 void TIMER4_IRQHandler(void){
   NRF_TIMER4->EVENTS_COMPARE[tY]= 0;
   NRF_TIMER4->TASKS_CLEAR = 0x01;
   NRF_TIMER4->TASKS_START = 0x01;
   
-  NRF_TIMER2->TASKS_COUNT = 0x01;
 
-  printf("\n Counter = %lu\n\n", read_counter());  
+
+  
+  reportCount();
+  //printf("\n Counter = %lu\n\n", read_counter());  
 }
 
 
 
 static float average = 0;
-static float count = 0;
+static int count = 0;
 
 
-void logToSD(){
-    count = count +1;
-    uint32_t time = NRF_TIMER3->CC[0];
+
+void reportCount(){
+    count++;
+    uint32_t time = NRF_TIMER3->CC[1];
+    NRF_TIMER3->TASKS_CLEAR =0x01;
+    NRF_TIMER3->TASKS_START =0x01;
     average = ((average * (count -1)) + time )/ (count );
-    //replae with logger if I get it working
-    //simple_logger_log("%d, %d, %f,\n", count, time, average);
+    
+    
+    printf("\n Count %d, Time %d,  average%f,\n", count, time, average);
+    float xS = 1.0/ time;
+    float xMs = xS* 1000000;
+    printf("1 / average is around %.4f seconds or %.2e microseconds", xS, xMs );
 
-    printf("%d, %d, %f,\n", count, time, average);
+
 
 }
 
@@ -55,7 +57,7 @@ void timer_init(){
    
    NRF_TIMER4->SHORTS =0x01;
 
-  NRF_TIMER4->CC[tY] = 0x1E848;//Actual thing that is stopping x
+  NRF_TIMER4->CC[tY] = 0x7A12;//Actual thing that is stopping x
 
   NVIC_EnableIRQ(TIMER4_IRQn);// when CC[ty] is reached flag interrupt
   NVIC_SetPriority(TIMER4_IRQn, 0);

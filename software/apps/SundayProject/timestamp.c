@@ -13,7 +13,7 @@ void init_SDCard(){
   ret_code_t error_code = NRF_SUCCESS;
   // SD Card Checking
   printf("Started SD card demo app...\n");
-  timer_init();
+  //timer_init();
 
   // Enable SoftDevice (used to get RTC running)
   nrf_sdh_enable_request();

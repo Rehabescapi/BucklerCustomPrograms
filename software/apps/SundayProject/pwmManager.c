@@ -40,10 +40,7 @@ void pwm_init()
 
 void setTwoChannel( int value)
 {
-    if(value %25 == 0)
-    {
-        printf("%d \t", value);
-    }
+    
     while(app_pwm_channel_duty_set(&PWM1, 1, value) == NRF_ERROR_BUSY);
             
     while(app_pwm_channel_duty_set(&PWM1, 0, value) == NRF_ERROR_BUSY);

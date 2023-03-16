@@ -33,7 +33,7 @@ void pwm_init()
     APP_ERROR_CHECK(err_code);
 
     app_pwm_enable(&PWM1);          
-    while(app_pwm_channel_duty_set(&PWM1,1,50)== NRF_ERROR_BUSY);
+    while(app_pwm_channel_duty_set(&PWM1,1,80)== NRF_ERROR_BUSY);
 
 }
 

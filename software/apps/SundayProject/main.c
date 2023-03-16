@@ -30,13 +30,24 @@ static ret_code_t err_code;
 
 
 
-
+static bool x = true;
 
 //When PIN_IN senses a HITOLO signal increment the count 
 void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
+
+    
+   if(action == GPIOTE_CONFIG_POLARITY_Toggle && x)
+   {
+    NRF_TIMER3->TASKS_COUNT = 0x01;
+    NRF_TIMER2->TASKS_STOP  = 0x01;
+    x = false;
+
+   }else{
+    NRF_TIMER2->TASKS_START = 0x01;
+    x=true;
+   }
    
-   NRF_TIMER3->TASKS_COUNT = 0x01;
 
 }
 
@@ -94,7 +105,7 @@ void gpioteSetup(){
 
 
 
-    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
+    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(true);
     in_config.pull = NRF_GPIO_PIN_PULLUP;
     err_code = nrf_drv_gpiote_in_init(PIN_IN, &in_config, in_pin_handler);
     APP_ERROR_CHECK(err_code);

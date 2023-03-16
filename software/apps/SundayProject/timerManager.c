@@ -12,6 +12,9 @@ void TIMER4_IRQHandler(void){
   NRF_TIMER4->TASKS_START = 0x01;
   
 
+NRF_TIMER2->TASKS_CAPTURE[0] = 0x01;
+   
+NRF_TIMER2->TASKS_CLEAR = 0x01;
 
   
   reportCount();
@@ -26,19 +29,24 @@ static int count = 0;
 
 
 void reportCount(){
-  NRF_TIMER3->TASKS_CAPTURE[1] = 0x01;
+    NRF_TIMER3->TASKS_CAPTURE[1] = 0x01;
+
+
 
     count++;
     uint32_t time = NRF_TIMER3->CC[1];
     NRF_TIMER3->TASKS_CLEAR =0x01;
     NRF_TIMER3->TASKS_START =0x01;
     average = ((average * (count -1)) + time )/ (count );
+    uint32_t hitime = NRF_TIMER2->CC[0];
+    float onpercent = (float) hitime /31250;
+
     
-    
-    printf("\n Count %d, Time %d,  average%f,\n", count, time, average);
+    printf("Count %d, Time %d,  average%f,\n", count, time, average);
     float xS = 1.0/ time;
     float xMs = xS* 1000000;
-    printf("1 / average is around %.4f seconds or %.2e microseconds", xS, xMs );
+    printf("1 / average is around %.4f \t seconds or %.2e microseconds\n", xS, xMs );
+    printf("On Time %d\t  duty cycle around %f \n", hitime , onpercent);
 
 
 
@@ -74,9 +82,12 @@ void timer_init(){
   NRF_TIMER3->TASKS_START = 0x01;
 
 
+  NRF_TIMER2->TASKS_STOP = 1;
+  NRF_TIMER2->TASKS_CLEAR =1;
+  NRF_TIMER2 ->PRESCALER = 0x09;
   NRF_TIMER2 -> BITMODE = 0x02;
-  NRF_TIMER2->MODE = 0x01;
-  NRF_TIMER2->TASKS_START = 0x01;
+  NRF_TIMER2->MODE = 0x00;
+  
   
 }
 

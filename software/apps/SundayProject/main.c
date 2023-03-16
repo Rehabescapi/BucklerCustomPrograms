@@ -35,7 +35,7 @@ static ret_code_t err_code;
 //When PIN_IN senses a HITOLO signal increment the count 
 void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-
+   
    NRF_TIMER3->TASKS_COUNT = 0x01;
 
 }
@@ -80,13 +80,6 @@ int main(void){
 void gpioteSetup(){
 
     nrf_drv_gpiote_init();
-    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
-    in_config.pull = NRF_GPIO_PIN_PULLUP;
-    err_code = nrf_drv_gpiote_in_init(PIN_IN, &in_config, in_pin_handler);
-    APP_ERROR_CHECK(err_code);
-    nrf_drv_gpiote_in_event_enable(PIN_IN, true);
-
-
 
 
     // Configure LED GPIO
@@ -98,4 +91,16 @@ void gpioteSetup(){
     nrf_drv_gpiote_in_init(BTN, &config, button_event_handler); //Assign button config to a GPIOTE channel
     //Assign button config to a GPIOTE channel                                                       //and assigning the interrupt handler
     nrf_drv_gpiote_in_event_enable(BTN, true);  
+
+
+
+    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
+    in_config.pull = NRF_GPIO_PIN_PULLUP;
+    err_code = nrf_drv_gpiote_in_init(PIN_IN, &in_config, in_pin_handler);
+    APP_ERROR_CHECK(err_code);
+    nrf_drv_gpiote_in_event_enable(PIN_IN, true);
+
+
+
+
 }

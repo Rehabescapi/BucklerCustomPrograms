@@ -26,6 +26,8 @@ static int count = 0;
 
 
 void reportCount(){
+  NRF_TIMER3->TASKS_CAPTURE[1] = 0x01;
+
     count++;
     uint32_t time = NRF_TIMER3->CC[1];
     NRF_TIMER3->TASKS_CLEAR =0x01;

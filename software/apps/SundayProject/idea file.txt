@@ -1,0 +1,16 @@
+uint32_t err_code = NRF_LOG_INIT(NULL);
+    APP_ERROR_CHECK(err_code);
+
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
+
+    ret_code_t ret_code = nrf_pwr_mgmt_init();
+    APP_ERROR_CHECK(ret_code);
+
+    saadc_init();
+    saadc_sampling_event_init();
+    saadc_sampling_event_enable();
+
+    nrf_gpio_cfg_output(18);
+    
+    /* 2-channel PWM, 200Hz, output on DK LED pins. */
+    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_1CH(5000L, 18);

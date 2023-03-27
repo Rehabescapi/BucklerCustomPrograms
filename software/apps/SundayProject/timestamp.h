@@ -2,20 +2,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "nrf.h"
 #include "app_error.h"
-
-
-
-#include "app_timer.h"
-
-
-
-#include "bsp.h"
+#include "nrf.h"
+#include "nrf_sdh.h"
 #include "nrf_delay.h"
-#include "app_pwm.h"
-
-//catch all 
+#include "nrfx_gpiote.h"
 #include "nrf_gpio.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -24,13 +15,12 @@
 #include "nrf_serial.h"
 
 #include "buckler.h"
-#include "nrfx_gpiote.h"
-//bookKeeping files
+#include "simple_logger.h"
 
-#include "gpio.h"
 
-typedef uint32_t unint32;
+//void timer_init();
 
-void timer_init();
+float get_timestamp();
 
-uint32_t read_timer();
+void init_SDCard();
+

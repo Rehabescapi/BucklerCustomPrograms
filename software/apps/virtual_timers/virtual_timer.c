@@ -17,19 +17,30 @@ void TIMER4_IRQHandler(void) {
   NRF_TIMER4->EVENTS_COMPARE[0] = 0;
 
   // Place your interrupt handler code here
-
+   
+  // Update CC[0] register from the remaining timer values
+  checkTimers();
 }
 
 void checkTimers(){
 	// update CC[0] value by looking at the linked list
 	// node after the current one, and update CC[0] using
 	// the timer_value from this node
+
+  /*
+  1. Remove the first node and place at the end of the linked list after adding the current timer value. 
+  Use read_timer() to get the current timer value. Use the linked list function that both inserts the 
+  node and also sorts the list based on the timer value.
+  2. Now get the first node of the updated list. This will be the next timer value to trigger the new COMPARE EVENT at.
+  3. Check if the timer vallue in this node is already reached. 
+  In that case, call the callback function. The callback function can be called using the following command: timer_node->cbFunc();
+  */
 }
 
 
 // Read the current value of the timer counter
 uint32_t read_timer(void) {
-
+  // Same function as the regular timers lab from CSE 351
   // Should return the value of the internal counter for TIMER4
   return 0;
 }
@@ -61,7 +72,7 @@ void virtual_timer_init(void) {
 // testing it over time.
 static uint32_t timer_start(uint32_t microseconds, virtual_timer_callback_t cb, bool repeated) {
 
-  // Return a unique timer ID. (hint: What is guaranteed unique about the timer you have created?)
+  
   return 0;
 }
 

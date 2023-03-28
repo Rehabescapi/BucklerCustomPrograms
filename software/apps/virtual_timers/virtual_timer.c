@@ -10,6 +10,9 @@
 #include "virtual_timer.h"
 #include "virtual_timer_linked_list.h"
 
+
+static int id = 0;
+
 // This is the interrupt handler that fires on a compare event
 void TIMER4_IRQHandler(void) {
   // This should always be the first line of the interrupt handler!
@@ -17,6 +20,7 @@ void TIMER4_IRQHandler(void) {
   NRF_TIMER4->EVENTS_COMPARE[0] = 0;
 
   // Place your interrupt handler code here
+  printf("interuption occured\n");
    
   // Update CC[0] register from the remaining timer values
   checkTimers();
@@ -24,7 +28,59 @@ void TIMER4_IRQHandler(void) {
 
 void checkTimers(){
 
+  node_t * base = list_remove_first();
+  printf("base id : %lu \t" ,base->ID);
+  node_t *temp;
 
+  if(base != NULL){
+
+    node_t * current = list_get_first();
+    (* (base->cbFunc)) ();
+    if(current!= NULL)
+    {
+      while(base->timer_value == current->timer_value)
+      {
+        printf("Matched times %lu and %lu \t ", base->ID , current->ID);
+        (* (current->cbFunc))();
+
+        temp = current;
+        if(current->next != NULL){
+          current = current->next;
+
+
+
+        }
+        
+        temp->next = NULL;
+
+        if(temp->repeat)
+        {
+          printf("updating Temp %lu \n", temp->ID);
+          update(temp);
+
+        }else
+        {
+          free(temp);
+        }
+      }
+    }
+
+    NRF_TIMER4->CC[0] = base->timer_value;
+
+    if(base->repeat){
+      printf("\n Updating value %lu \n", base->ID);
+      update(base);
+
+    }else{
+      printf("\tFreeing %lu \n", base->ID);
+      free(base);
+    }
+
+
+      list_print();
+  }else{
+    printf("empty lot\n");
+  }
 
 	// update CC[0] value by looking at the linked list
 	// node after the current one, and update CC[0] using
@@ -40,11 +96,23 @@ void checkTimers(){
   */
 }
 
+void update(node_t* x ){
+  uint32_t newCount = x->period + x->timer_value;
+  x->timer_value=  newCount;
+
+  x->ID = id++;
+  list_insert_sorted(x);
+
+
+
+
+}
+
 
 // Read the current value of the timer counter
 uint32_t read_timer(void) {
-  NRF_TIMER4->TASKS_CAPTURE[0] = 0x01;
-  return NRF_TIMER4->CC[0];
+  NRF_TIMER4->TASKS_CAPTURE[1] = 0x01;
+  return NRF_TIMER4->CC[1];
 }
 
 // Initialize TIMER4 as a free running timer
@@ -89,17 +157,20 @@ void virtual_timer_init(void) {
 //
 // Follow the lab manual and start with simple cases first, building complexity and
 // testing it over time.
+
 static uint32_t timer_start(uint32_t microseconds, virtual_timer_callback_t cb, bool repeated) {
 
   //malloc
   struct node_t * link = (struct node_t*) malloc(sizeof(struct node_t));
   link->timer_value = microseconds;
+  link->period = microseconds;
   link->cbFunc = cb;
   link->repeat = repeated;
-  list_insert_sorted( link);
+  link->ID = id++;
+  list_insert_sorted(link);
 
 
-  list_print();
+  //list_print();
   
   return 0;
 }

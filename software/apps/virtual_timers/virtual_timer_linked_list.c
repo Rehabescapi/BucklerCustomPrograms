@@ -113,12 +113,12 @@ void list_print() {
     } else {
 
         // print first node
-        printf("[ (%lu)", linked_list->timer_value);
+        printf("[ (%lu __ %lu)", linked_list->timer_value, linked_list->ID);
 
         // print the other nodes
         node_t* curr_node = linked_list->next;
         while (curr_node != NULL) {
-            printf(" -> (%lu)", curr_node->timer_value);
+            printf(" -> (%lu __ %lu)", curr_node->timer_value, curr_node->ID);
             curr_node = curr_node->next;
         }
         printf(" ]\n");

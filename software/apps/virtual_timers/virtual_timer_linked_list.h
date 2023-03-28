@@ -13,6 +13,11 @@
 typedef struct node_t {
 
     // *** Additional timer fields ***
+    uint8_t ID;
+    uint32_t period;
+
+    virtual_timer_callback_t* cbFunc;
+    bool repeat;
 
     // add your own variables here
 

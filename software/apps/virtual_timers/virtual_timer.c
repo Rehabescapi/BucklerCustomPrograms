@@ -23,6 +23,9 @@ void TIMER4_IRQHandler(void) {
 }
 
 void checkTimers(){
+
+
+
 	// update CC[0] value by looking at the linked list
 	// node after the current one, and update CC[0] using
 	// the timer_value from this node
@@ -40,9 +43,8 @@ void checkTimers(){
 
 // Read the current value of the timer counter
 uint32_t read_timer(void) {
-  // Same function as the regular timers lab from CSE 351
-  // Should return the value of the internal counter for TIMER4
-  return 0;
+  NRF_TIMER4->TASKS_CAPTURE[0] = 0x01;
+  return NRF_TIMER4->CC[0];
 }
 
 // Initialize TIMER4 as a free running timer
@@ -52,7 +54,24 @@ uint32_t read_timer(void) {
 // 4) Clear the timer
 // 5) Start the timer
 void virtual_timer_init(void) {
+  NRF_TIMER4->TASKS_STOP = 1;
+  
+
+  NRF_TIMER4->PRESCALER = 0x04;
+  NRF_TIMER4->INTENSET = 0x10000;//Setup to prescaler for Compare 0
+  NRF_TIMER4->BITMODE = 0x03;
+  NRF_TIMER4->MODE = 0x0;
+
+  NVIC_EnableIRQ(TIMER4_IRQn);
+  NVIC_SetPriority(TIMER4_IRQn, 0);
+
+  NRF_TIMER4->TASKS_CLEAR = 1;
+  NRF_TIMER4->TASKS_START =0x01;
+
+
+
   // Place your timer initialization code here
+ 
 }
 
 // Start a timer. This function is called for both one-shot and repeated timers
@@ -72,6 +91,15 @@ void virtual_timer_init(void) {
 // testing it over time.
 static uint32_t timer_start(uint32_t microseconds, virtual_timer_callback_t cb, bool repeated) {
 
+  //malloc
+  struct node_t * link = (struct node_t*) malloc(sizeof(struct node_t));
+  link->timer_value = microseconds;
+  link->cbFunc = cb;
+  link->repeat = repeated;
+  list_insert_sorted( link);
+
+
+  list_print();
   
   return 0;
 }
@@ -79,12 +107,14 @@ static uint32_t timer_start(uint32_t microseconds, virtual_timer_callback_t cb, 
 // You do not need to modify this function
 // Instead, implement timer_start
 uint32_t virtual_timer_start(uint32_t microseconds, virtual_timer_callback_t cb) {
+  
   return timer_start(microseconds, cb, false);
 }
 
 // You do not need to modify this function
 // Instead, implement timer_start
 uint32_t virtual_timer_start_repeated(uint32_t microseconds, virtual_timer_callback_t cb) {
+  
   return timer_start(microseconds, cb, true);
 }
 

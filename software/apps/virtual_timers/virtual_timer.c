@@ -38,41 +38,29 @@ void checkTimers(){
     (* (base->cbFunc)) ();
     if(current!= NULL)
     {
-      while(base->timer_value == current->timer_value)
+      while(base->timer_value == current->timer_value) //checks to see if base is the same time as the next thing on the list.
       {
-        printf("Matched times %lu and %lu \t ", base->ID , current->ID);
-        (* (current->cbFunc))();
-
-        temp = current;
-        if(current->next != NULL){
-          current = current->next;
-
-
-
-        }
-        
-        temp->next = NULL;
-
+        temp = list_remove_first();
+        (* (temp->cbFunc))();
         if(temp->repeat)
         {
-          printf("updating Temp %lu \n", temp->ID);
           update(temp);
 
         }else
         {
           free(temp);
         }
+
+        current = list_get_first();
       }
     }
 
     NRF_TIMER4->CC[0] = base->timer_value;
 
     if(base->repeat){
-      printf("\n Updating value %lu \n", base->ID);
       update(base);
 
     }else{
-      printf("\tFreeing %lu \n", base->ID);
       free(base);
     }
 
@@ -98,10 +86,11 @@ void checkTimers(){
 
 void update(node_t* x ){
   uint32_t newCount = x->period + x->timer_value;
-  x->timer_value=  newCount;
-
+  x->timer_value =  newCount;
+  
   x->ID = id++;
   list_insert_sorted(x);
+  
 
 
 

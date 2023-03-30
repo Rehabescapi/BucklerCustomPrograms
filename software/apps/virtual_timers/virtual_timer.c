@@ -21,9 +21,19 @@ void TIMER4_IRQHandler(void) {
 
   // Place your interrupt handler code here
   printf("interuption occured\n");
+
+  list_print();
    
   // Update CC[0] register from the remaining timer values
   checkTimers();
+}
+
+
+void set_First(){
+  node_t *first = list_get_first();
+
+  NRF_TIMER4->CC[0] = first->timer_value;
+
 }
 
 void checkTimers(){
@@ -31,7 +41,7 @@ void checkTimers(){
   node_t * base = list_remove_first();
   printf("base id : %lu \t" ,base->ID);
   node_t *temp;
-
+  
   if(base != NULL){
 
     node_t * current = list_get_first();
@@ -42,30 +52,23 @@ void checkTimers(){
       {
         temp = list_remove_first();
         (* (temp->cbFunc))();
-        if(temp->repeat)
-        {
-          update(temp);
-
-        }else
-        {
-          free(temp);
-        }
+        update(temp);
 
         current = list_get_first();
       }
     }
+    update(base);
 
-    NRF_TIMER4->CC[0] = base->timer_value;
-
-    if(base->repeat){
-      update(base);
-
-    }else{
-      free(base);
+    if(list_get_first() != NULL){
+      NRF_TIMER4->CC[0] = list_get_first()->timer_value;
     }
+  
 
+    
 
-      list_print();
+    
+
+      
   }else{
     printf("empty lot\n");
   }
@@ -84,13 +87,22 @@ void checkTimers(){
   */
 }
 
+
+/**
+ * 
+ * */
 void update(node_t* x ){
+
+  if(x->repeat)
+  {
   uint32_t newCount = x->period + x->timer_value;
   x->timer_value =  newCount;
   
   x->ID = id++;
   list_insert_sorted(x);
-  
+  }else{
+    free(x);
+  }
 
 
 
@@ -161,7 +173,7 @@ static uint32_t timer_start(uint32_t microseconds, virtual_timer_callback_t cb, 
 
   //list_print();
   
-  return 0;
+  return link->ID;
 }
 
 // You do not need to modify this function
@@ -182,5 +194,27 @@ uint32_t virtual_timer_start_repeated(uint32_t microseconds, virtual_timer_callb
 // Make sure you don't cause linked list consistency issues!
 // Do not forget to free removed timers.
 void virtual_timer_cancel(uint32_t timer_id) {
+  node_t *starter = list_get_first();
+  node_t *temp;
+
+  if(starter ->ID == timer_id)
+  {
+    free(list_remove_first());
+  }
+  else{
+  while(starter->next->ID != timer_id)
+  {
+    starter = starter->next;
+  }
+  if (starter != NULL)
+  {
+     temp = starter->next;
+     starter->next = temp->next;
+
+     free(temp);
+
+  }
+}
+
 }
 

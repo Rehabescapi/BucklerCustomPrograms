@@ -12,6 +12,8 @@ void checkTimers(void);
 // Returns the counter value
 uint32_t read_timer(void);
 
+void set_First(void);
+
 // Initialize the timer peripheral
 void virtual_timer_init(void);
 

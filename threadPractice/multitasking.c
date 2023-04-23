@@ -4,7 +4,8 @@
 
 
 
-int x; // Value that gets updated. 
+float x; // Value that gets updated. 
+static int counter = 0;
 typedef void notifyProcedure(int); // Type of notify proc.
 struct element {
 	notifyProcedure* listener; // Pointer to notify procedure.
@@ -17,8 +18,8 @@ element_t* tail = 0;
 void addListener(notifyProcedure* listener){
 	if(head == 0) {
 		head = malloc(sizeof(element_t));
-		head->listener = listener;
 		head->next = 0;
+		head->listener = listener;
 		tail = head;
 	}else{
 		tail->next = malloc (sizeof(element_t));
@@ -27,13 +28,14 @@ void addListener(notifyProcedure* listener){
 		tail->next = 0;
 
 	}
+	printf("Listener %d added\n", ++ counter);
 	
 }
 
 /** procedure to update x.
 **/
 
-void update (int newx){
+void update (float newx){
 	x = newx;
 	int i =0;
 
@@ -43,70 +45,72 @@ void update (int newx){
 		elementX = elementX->next;
 		i++;
 	}
-	printf("Current Count is %d\n",i);
+	
 }
 
 //Example of a notify procedure.
-void print (int arg ){
-	printf("System Parameter is %d\n", arg);
+void print (float arg ){
+	printf("Listeners added are %d, System Parameter is %.6f\n",counter,  arg);
 }
 
 
 
-void delay(int number_of_seconds)
+
+
+
+void getTime(time_t timer)
 {
 	
-   int second = 1;
-   
-    // Converting time into milli_seconds
-   time_t start, end;
-   start = time(NULL);
- 
-  for(int i = 1; i <=number_of_seconds; i++){
-   	time_t wait = second+time(NULL);
-   	while(time(NULL) < wait){}
-   	printf("%d\n", i);
-   }
-   end=time(NULL);
-  printf("program take %d second\n",(unsigned int)difftime(end,start));
-  
+	
+	time_t now;
+	now = time(NULL);
+	
+
+
+	float timestamp = (float) (clock() - timer)/1000.0F;
+	printf("\n  timestamp :%.8f \n", timestamp);
+
+
+
 
 }
 
-int main(void) {
-	//pthread_t threadID1, threadID2, threadID3, threadID4;
-	void* exitStatus;
 
+
+int main(void) {
+	time_t timer2 = clock();
+	//pthread_t threadID1, threadID2, threadID3, threadID4;
 	
 
-   
-
-		
+	//void* exitStatus;
 		addListener(&print);
 		addListener(&print);
 		addListener(&print);
 		addListener(&print);
+		getTime(timer2);
+
+
+		
+		
+		update(17.2500);
 		
 
-		update(1);
+		getTime(timer2);
 
 
-		//printf("timestamp: %d\n", timestamp );
-		delay(2);
+
+		update(15.25);
+		getTime( timer2);
 		
-        // delay of one second
-       
-       // printf("%d seconds have passed\n", i + 1);
-    
 
 
-		update(2);
-
-		//printf("timestamp: %d\n", timestamp );
-		delay(2);
+		update(13.25);
+		getTime( timer2);
 		
-		update(4);
-		//printf("timestamp: %d\n", timestamp );
+
+
+
+//printf("timestamp: %d\n", timestamp );
 		
 
 

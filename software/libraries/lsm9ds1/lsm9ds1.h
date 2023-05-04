@@ -40,6 +40,11 @@ lsm9ds1_measurement_t lsm9ds1_read_magnetometer();
 //  - must be stopped before starting
 ret_code_t lsm9ds1_start_gyro_integration();
 
+// Perform calibraiton by running the gyroscope and accelerometer
+// for a sec. and updating the bias variables. And use these
+// variables to update the accelerations and angles in actual usage
+ret_code_t lsm9ds1_calibrate();
+
 // Stop integration on the gyro
 void lsm9ds1_stop_gyro_integration();
 

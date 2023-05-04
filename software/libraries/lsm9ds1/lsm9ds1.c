@@ -14,10 +14,11 @@ static IMUSettings settings;
 static int16_t gx, gy, gz;
 static int16_t ax, ay, az;
 static int16_t mx, my, mz;
-static bool autocalc;
+static bool calib =true;
 static float gRes, aRes, mRes;
 static float gBias[3], aBias[3], mBias[3];
-static int16_t gBiasRaw[3], aBiasRaw[3], mBiasRaw[3];
+// static int16_t gBiasRaw[3], aBiasRaw[3], mBiasRaw[3];
+static float gBiasRaw[3], aBiasRaw[3], mBiasRaw[3];
 
 // rotation tracking variables
 static const nrf_drv_timer_t gyro_timer = NRFX_TIMER_INSTANCE(1);
@@ -305,17 +306,20 @@ ret_code_t lsm9ds1_init(const nrf_twi_mngr_t* i2c) {
   settings.gyro.enableY = true;
   settings.gyro.enableZ = true;
   // gyro scale can be 245, 500, or 2000
-  settings.gyro.scale = G_SCALE_245DPS;
+  // settings.gyro.scale = G_SCALE_245DPS;
+  settings.gyro.scale = G_SCALE_500DPS;
+  // settings.gyro.scale = G_SCALE_2000DPS;
   // gyro sample rate: value between 1-6
   // 1 = 14.9    4 = 238
   // 2 = 59.5    5 = 476
   // 3 = 119     6 = 952
-  settings.gyro.sampleRate = G_ODR_952;
+  // settings.gyro.sampleRate = G_ODR_952;
+  settings.gyro.sampleRate = G_ODR_476;
   // gyro cutoff frequency: value between 0-3
   // Actual value of cutoff frequency depends
   // on sample rate.
   settings.gyro.bandwidth = 0;
-  settings.gyro.lowPowerEnable = false;
+  settings.gyro.lowPowerEnable = true;
   settings.gyro.HPFEnable = false;
   // Gyro HPF cutoff frequency: value between 0-9
   // Actual value depends on sample rate. Only applies
@@ -333,6 +337,7 @@ ret_code_t lsm9ds1_init(const nrf_twi_mngr_t* i2c) {
   settings.accel.enableZ = true;
   // accel scale can be 2, 4, 8, or 16G
   settings.accel.scale = A_SCALE_2G;
+  // settings.accel.scale = A_SCALE_16G;
   // accel sample rate can be 1-6
   // 1 = 10 Hz    4 = 238 Hz
   // 2 = 50 Hz    5 = 476 Hz
@@ -343,23 +348,26 @@ ret_code_t lsm9ds1_init(const nrf_twi_mngr_t* i2c) {
   // 0 = 408 Hz   2 = 105 Hz
   // 1 = 211 Hz   3 = 50 Hz
   settings.accel.bandwidth = -1;
-  settings.accel.highResEnable = false;
+  // settings.accel.highResEnable = false;
+  settings.accel.highResEnable = true;
   // accelHighResBandwidth can be any value between 0-3
   // LP cutoff is set to a factor of sample rate
   // 0 = ODR/50    2 = ODR/9
   // 1 = ODR/100   3 = ODR/400
-  settings.accel.highResBandwidth = 0;
+  settings.accel.highResBandwidth = 2;
 
   settings.mag.enabled = true;
   // mag scale can be 4, 8, 12, or 16
-  settings.mag.scale = M_SCALE_4GS;
+  // settings.mag.scale = M_SCALE_4GS;
+  settings.mag.scale = M_SCALE_12GS;
   // mag data rate can be 0-7
   // 0 = 0.625 Hz  4 = 10 Hz
   // 1 = 1.25 Hz   5 = 20 Hz
   // 2 = 2.5 Hz    6 = 40 Hz
   // 3 = 5 Hz      7 = 80 Hz
   settings.mag.sampleRate = M_ODR_80;
-  settings.mag.tempCompensationEnable = false;
+  // settings.mag.tempCompensationEnable = false;
+  settings.mag.tempCompensationEnable = true;
   // magPerformance can be any value between 0-3
   // 0 = Low power mode      2 = high performance
   // 1 = medium performance  3 = ultra-high performance
@@ -382,7 +390,10 @@ ret_code_t lsm9ds1_init(const nrf_twi_mngr_t* i2c) {
     aBiasRaw[i] = 0;
     mBiasRaw[i] = 0;
   }
-  autocalc = false;
+  
+  
+  // that is, we are interested in calibrating the sensor first
+  calib = true;
 
   // initialize a timer for integrating gyro - the default frequency is 16MHz
   nrf_drv_timer_config_t timer_cfg = {
@@ -423,6 +434,14 @@ ret_code_t lsm9ds1_init(const nrf_twi_mngr_t* i2c) {
   // Magnetometer initialization stuff:
   initMag(); // "Turn on" all axes of the mag. Set up interrupts, etc.
 
+  
+  calib = false;  
+  
+  error_code = lsm9ds1_calibrate();
+  APP_ERROR_CHECK(error_code);
+  
+  calib = true;
+
   return NRF_SUCCESS;
 }
 
@@ -435,15 +454,16 @@ lsm9ds1_measurement_t lsm9ds1_read_accelerometer() {
   ax = (temp[1] << 8) | temp[0];
   ay = (temp[3] << 8) | temp[2];
   az = (temp[5] << 8) | temp[4];
-  if (autocalc) {
-    ax -= aBiasRaw[X_AXIS];
-    ay -= aBiasRaw[Y_AXIS];
-    az -= aBiasRaw[Z_AXIS];
-  }
+  
+
+  // Bias calculations from the calibration are not needed for correct accelerometer readings
+  
 
   meas.x_axis = ax * aRes;
   meas.y_axis = ay * aRes;
   meas.z_axis = az * aRes;
+  
+  
   return meas;
 }
 
@@ -456,16 +476,22 @@ lsm9ds1_measurement_t lsm9ds1_read_gyro() {
   gx = (temp[1] << 8) | temp[0]; // Store x-axis values into gx
   gy = (temp[3] << 8) | temp[2]; // Store y-axis values into gy
   gz = (temp[5] << 8) | temp[4]; // Store z-axis values into gz
-  if (autocalc)
+  
+  if (calib)
   {
-    gx -= gBiasRaw[X_AXIS];
-    gy -= gBiasRaw[Y_AXIS];
-    gz -= gBiasRaw[Z_AXIS];
+    meas.x_axis=gx * gRes - gBias[X_AXIS];
+    meas.y_axis=gy * gRes - gBias[Y_AXIS];
+    meas.z_axis=gz * gRes - gBias[Z_AXIS];
   }
 
-  meas.x_axis = gx * gRes;
-  meas.y_axis = gy * gRes;
-  meas.z_axis = gz * gRes;
+  else{
+
+    meas.x_axis = gx * gRes;
+    meas.y_axis = gy * gRes;
+    meas.z_axis = gz * gRes;  
+  }
+  
+
   return meas;
 }
 
@@ -502,6 +528,39 @@ ret_code_t lsm9ds1_start_gyro_integration() {
   return NRF_SUCCESS;
 }
 
+ret_code_t lsm9ds1_calibrate(){
+
+
+  uint16_t calib_iter = 1000;
+  // read 1000 values of accelerometer and gyroscoope and updat ehte bias variables
+
+  for (int counter = 0; counter<calib_iter; counter++)  {
+
+    gBiasRaw[X_AXIS]+=lsm9ds1_read_gyro().x_axis;
+    gBiasRaw[Y_AXIS]+=lsm9ds1_read_gyro().y_axis;
+    gBiasRaw[Z_AXIS]+=lsm9ds1_read_gyro().z_axis;
+
+    aBiasRaw[X_AXIS]+=lsm9ds1_read_accelerometer().x_axis;
+    aBiasRaw[Y_AXIS]+=lsm9ds1_read_accelerometer().y_axis;
+    aBiasRaw[Z_AXIS]+=lsm9ds1_read_accelerometer().z_axis;
+
+  }
+
+  aBias[X_AXIS] = aBiasRaw[X_AXIS]/calib_iter;
+  aBias[Y_AXIS] = aBiasRaw[Y_AXIS]/calib_iter;
+  aBias[Z_AXIS] = aBiasRaw[Z_AXIS]/calib_iter;
+
+  gBias[X_AXIS] = gBiasRaw[X_AXIS]/calib_iter;
+  gBias[Y_AXIS] = gBiasRaw[Y_AXIS]/calib_iter;
+  gBias[Z_AXIS] = gBiasRaw[Z_AXIS]/calib_iter;
+
+  printf("Acc Bias: %3.2f - %3.2f - %3.2f \n", aBias[X_AXIS],aBias[Y_AXIS],aBias[Z_AXIS]);
+  printf("Gyro Bias: %3.2f - %3.2f - %3.2f \n", gBias[X_AXIS],gBias[Y_AXIS],gBias[Z_AXIS]);
+
+ 
+  return NRF_SUCCESS; 
+}
+
 void lsm9ds1_stop_gyro_integration() {
   nrfx_timer_disable(&gyro_timer);
 }
@@ -523,3 +582,48 @@ lsm9ds1_measurement_t lsm9ds1_read_gyro_integration() {
   return integrated_angle;
 }
 
+// This is a function that uses the FIFO to accumulate sample of accelerometer and gyro data, average
+// them, scales them to  gs and deg/s, respectively, and then passes the biases to the main sketch
+// for subtraction from all subsequent data. There are no gyro and accelerometer bias registers to store
+// the data as there are in the ADXL345, a precursor to the LSM9DS0, or the MPU-9150, so we have to
+// subtract the biases ourselves. This results in a more accurate measurement in general and can
+// remove errors due to imprecise or varying initial placement. Calibration of sensor data in this manner
+// is good practice.
+// void lsm9ds1_calibrate(bool autoCalc)
+// {
+//   // uint8_t samples = 0;
+//   // int ii;
+//   // int16_t aBiasRawTemp[3] = {0, 0, 0};
+//   // int32_t gBiasRawTemp[3] = {0, 0, 0};
+  
+//   // // Turn on FIFO and set threshold to 32 samples
+//   // enableFIFO(true);
+//   // setFIFO(FIFO_THS, 0x1F);
+//   // while (samples < 0x1F)
+//   // {
+//   //   samples = (xgReadByte(FIFO_SRC) & 0x3F); // Read number of stored samples
+//   // }
+//   for(ii = 0; ii < samples ; ii++) 
+//   { // Read the gyro data stored in the FIFO
+//     readGyro();
+//     gBiasRawTemp[0] += gx;
+//     gBiasRawTemp[1] += gy;
+//     gBiasRawTemp[2] += gz;
+//     readAccel();
+//     aBiasRawTemp[0] += ax;
+//     aBiasRawTemp[1] += ay;
+//     aBiasRawTemp[2] += az - (int16_t)(1./aRes); // Assumes sensor facing up!
+//   }  
+//   for (ii = 0; ii < 3; ii++)
+//   {
+//     gBiasRaw[ii] = gBiasRawTemp[ii] / samples;
+//     gBias[ii] = calcGyro(gBiasRaw[ii]);
+//     aBiasRaw[ii] = aBiasRawTemp[ii] / samples;
+//     aBias[ii] = calcAccel(aBiasRaw[ii]);
+//   }
+  
+//   enableFIFO(false);
+//   setFIFO(FIFO_OFF, 0x00);
+  
+//   if (autoCalc) _autoCalc = true;
+// }

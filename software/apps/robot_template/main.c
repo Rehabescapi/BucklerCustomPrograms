@@ -25,14 +25,16 @@
 #include "kobukiSensorTypes.h"
 #include "kobukiUtilities.h"
 #include "lsm9ds1.h"
+#include "helper_funcs.h"
 
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 
-typedef enum {
-  OFF,
-  DRIVING,
-} robot_state_t;
+
+uint16_t previous_encoder = 0;
+float distance = 0;
+
+
 
 
 int main(void) {
@@ -83,7 +85,7 @@ int main(void) {
   printf("Kobuki initialized!\n");
 
   // configure initial state
-  robot_state_t state = OFF;
+  states state = OFF;
   KobukiSensors_t sensors = {0};
 
   // loop forever, running state machine
@@ -102,9 +104,13 @@ int main(void) {
         // transition logic
         if (is_button_pressed(&sensors)) {
           state = DRIVING;
+          // saving the wheel encoder position the moment we start moving
+          previous_encoder = sensors.leftWheelEncoder;
         } else {
           // perform state-specific actions here
           display_write("OFF", DISPLAY_LINE_0);
+          printf("OFF : %f \n", distance);
+          kobukiDriveDirect(0,0);
 
           state = OFF;
         }
@@ -117,8 +123,12 @@ int main(void) {
           state = OFF;
         } else {
           // perform state-specific actions here
+          
+          kobukiDriveDirect(100,100); 
+           
+          distance = update_dist(distance, previous_encoder, true);
           display_write("DRIVING", DISPLAY_LINE_0);
-
+          printf("DRIVING : %f \n", distance);
           state = DRIVING;
         }
         break; // each case needs to end with break!

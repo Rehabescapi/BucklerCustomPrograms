@@ -41,7 +41,7 @@ int main(void) {
 
     // Initialize.
     nrf_gpio_cfg_output(LED2);
-    nrf_gpio_pin_set(LED2);
+    nrf_gpio_pin_clear(LED2);
 
     thread_config_t thread_config = {
       .channel = 25,

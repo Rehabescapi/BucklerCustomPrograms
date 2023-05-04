@@ -9,18 +9,18 @@ BOARD = Buckler_revC
 USE_BLE = 1
 
 # Get directory of this makefile
-BOARD_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+#BOARD_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 # Include any files in this directory in the build process
-BOARD_SOURCE_PATHS = $(BOARD_DIR)/.
-BOARD_SOURCE_PATHS += $(wildcard $(BOARD_DIR)/../../libraries/*/)
-BOARD_HEADER_PATHS = $(BOARD_DIR)/.
-BOARD_HEADER_PATHS += $(BOARD_DIR)/../.
-BOARD_HEADER_PATHS += $(wildcard $(BOARD_DIR)/../../libraries/*/)
-BOARD_LINKER_PATHS = $(BOARD_DIR)/.
-BOARD_SOURCES = $(notdir $(wildcard $(BOARD_DIR)/./*.c))
-BOARD_SOURCES += $(notdir $(wildcard $(BOARD_DIR)/../../libraries/*/*.c))
-BOARD_AS = $(notdir $(wildcard $(BOARD_DIR)/./*.s))
+#BOARD_SOURCE_PATHS = $(BOARD_DIR)/.
+#BOARD_SOURCE_PATHS += $(wildcard $(BOARD_DIR)/../../libraries/*/)
+#BOARD_HEADER_PATHS = $(BOARD_DIR)/.
+#BOARD_HEADER_PATHS += $(BOARD_DIR)/../.
+#BOARD_HEADER_PATHS += $(wildcard $(BOARD_DIR)/../../libraries/*/)
+#BOARD_LINKER_PATHS = $(BOARD_DIR)/.
+#BOARD_SOURCES = $(notdir $(wildcard $(BOARD_DIR)/./*.c))
+#BOARD_SOURCES += $(notdir $(wildcard $(BOARD_DIR)/../../libraries/*/*.c))
+#BOARD_AS = $(notdir $(wildcard $(BOARD_DIR)/./*.s))
 
 # Convert board to upper case
 BOARD_UPPER = $(shell echo $(BOARD) | tr a-z A-Z)
@@ -33,19 +33,17 @@ BOARD_VARS = \
 	DEBUG\
 	DEBUG_NRF\
 
-# Default SDK source files to be included 
-#app_timer.c\
-
+# Default SDK source files to be included
 BOARD_SOURCES += \
 	SEGGER_RTT.c\
 	SEGGER_RTT_Syscalls_GCC.c\
 	SEGGER_RTT_printf.c\
 	app_error.c\
 	app_error_handler_gcc.c\
-	app_timer.c\
 	app_pwm.c\
-	app_uart.c\
 	app_scheduler.c\
+	app_timer.c\
+	app_uart.c\
 	app_util_platform.c\
 	before_startup.c\
 	ff.c\
@@ -92,31 +90,8 @@ BOARD_SOURCES += \
 	nrfx_uarte.c\
 	simple_logger.c\
 
-# BOARD_SOURCES += \
-# 	SEGGER_RTT.c \
-# 	SEGGER_RTT_Syscalls_GCC.c \
-# 	SEGGER_RTT_printf.c \
-# 	app_error.c \
-# 	app_error_handler_gcc.c \
-# 	app_pwm.c \
-# 	app_scheduler.c \ 
-# 	app_uart.c \
-
-
-
 ifneq ($(SOFTDEVICE_MODEL),blank)
-BOARD_SOURCES += \
-	nrf_sdh.c\
-	ble_advdata.c\
-	ble_advertising.c\
-	ble_srv_common.c\
-	nrf_ble_gatt.c\
-	nrf_ble_qwr.c\
-	nrf_sdh_ble.c\
-	simple_ble.c\
-# 	ble_conn_params.c\
-
-
+BOARD_SOURCES += nrf_sdh.c
 endif
 
 endif

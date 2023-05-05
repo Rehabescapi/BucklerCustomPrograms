@@ -46,10 +46,13 @@ bool gpio_read(uint8_t gpio_num) {
     return val;
 }
 
-void gpio_toggle(uint8_t pin_numb){  
-    bool val = (*(ptr_IN)&(1<<gpio_num));  
+void gpio_toggle(uint8_t gpio_numb){
+
+       
     uint32_t address = 0x50000000 +0x504; // loading OUT register
     uint32_t *ptr = (uint32_t *) address; 
+     bool val = (*(ptr)&&(1<<gpio_numb)); 
+     
     
-    *ptr ^=val<<pin_numb;  // Read the contents of the register and clear a necessary bit
+    *ptr ^=val<<gpio_numb;  // Read the contents of the register and clear a necessary bit
 }

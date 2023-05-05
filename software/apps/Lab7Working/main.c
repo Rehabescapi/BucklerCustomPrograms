@@ -142,11 +142,11 @@ int main(void) {
 
 
 
-  void printAccel(){
-  printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", ax, ay, az);
-  printf("Psi %f\t Phi  %f\t Delta %f\t", Angles.psi, Angles.phi, Angles.degree);
-  printf(" Gx 6.3%f, gY 6.3%f, Gz %f\n\n", gx, gy, gz);
-}
+    void printAccel(){
+    printf("Voltage = x: %6.3f\ty: %6.3f\tz: %6.3f\n", ax, ay, az);
+    printf("Psi %f\t Phi  %f\t Delta %f\t", Angles.psi, Angles.phi, Angles.degree);
+    printf(" Gx 6.3%f, gY 6.3%f, Gz %f\n\n", gx, gy, gz);
+  }
 
   void logThings(){
     float f = timestamp-baseTimeStamp;

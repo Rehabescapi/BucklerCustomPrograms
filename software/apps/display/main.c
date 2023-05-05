@@ -59,6 +59,6 @@ int main(void) {
     display_write(buf, i % 2);
     i += 7;
     nrf_delay_ms(10);
-  }
+    printf("%u", i);  }
 }
 

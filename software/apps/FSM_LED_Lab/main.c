@@ -28,6 +28,9 @@
 #include "gpio.h"
 #include "states.h"
 
+void* diplayboard( void * arg){
+
+}
 
 // intialize statechart variables
   // if needed
@@ -41,7 +44,7 @@ void print_state(){
 
   printf("CURRENT STATE: %d \n", current_state);
 }
-void initialize_hardware(spi_instance){
+void initialize_hardware(){
   ret_code_t error_code = NRF_SUCCESS;
 
   gpio_config(BUCKLER_LED0, true);
@@ -78,19 +81,6 @@ void initialize_hardware(spi_instance){
   lsm9ds1_init(&twi_mngr_instance);
   printf("lsm9ds1 initialized\n");
 
-  // initialize spi master(controller)
-  
-
-  
-  //display_write("Hi Mom",0);
-
-
-
-
-
- 
- 
-
 }
 
 int main(void) {
@@ -101,10 +91,11 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Log initialized!\n");
+  initialize_hardware();
 
   // initialize LEDs
   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
-  initialize_hardware(spi_instance);
+  
     nrf_drv_spi_config_t spi_config = {
     .sck_pin = BUCKLER_LCD_SCLK,
     .mosi_pin = BUCKLER_LCD_MOSI,
@@ -193,7 +184,6 @@ int main(void) {
             display_write("",1);
             
           }
-          
         break;
       case OFF:
         gpio_set(BUCKLER_LED0);

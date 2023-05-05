@@ -9,10 +9,10 @@ all: $(BINS)
 %: %.c
 		$(CC) $(CFLAGS) -o $@ $^ -pthread
 time.o : 
-	$(CC) -c time.c multitasking.c
+	$(CC) -c time.c 
 
-timemake: time.o multitasking.o
-	$(CC) -o time time.o multitasking.o -pthread
+timemake: time.o 
+	$(CC) -o time time.o  -pthread
 	time ./time
 
 clean :

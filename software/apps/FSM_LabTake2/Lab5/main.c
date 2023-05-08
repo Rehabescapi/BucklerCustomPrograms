@@ -92,7 +92,7 @@ void initialize_hardware(){
 
 
     //gyroscope
-  /*
+  
   // initialize i2c master (two wire interface)
   nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
   i2c_config.scl = BUCKLER_SENSORS_SCL;
@@ -104,7 +104,7 @@ void initialize_hardware(){
   // initialize LSM9DS1 driver
   lsm9ds1_init(&twi_mngr_instance);
   printf("lsm9ds1 initialized\n");
-  */
+  
 
 }
 
@@ -126,14 +126,6 @@ int main(void) {
 
 
  xTaskCreate( vTask1, "Task 1", configMINIMAL_STACK_SIZE + 200, NULL, 2, &vtask1_handle);
- /* The task is created at priority 2 ______^. */
- /* Create the second task at priority 1 - which is lower than the priority
- given to Task 1. Again the task parameter is not used so is set to NULL -
- BUT this time the task handle is required so the address of xTask2Handle
- is passed in the last parameter. */
- // UNUSED_VARIABLE(xTaskCreate( vTask2, "Task 2", configMINIMAL_STACK_SIZE + 200, NULL, 2, &vtask2_handle));
- //Setting STACK_SIZE + 500 breaks at timer ASSERTION FAILED at ../Source/timers.c:281
-
  xTaskCreate( vTask2, "Task 2", configMINIMAL_STACK_SIZE + 200, NULL, 2, &vtask2_handle);
  /* The task handle is the last parameter _____^^^^^^^^^^^^^ */
 
@@ -162,20 +154,95 @@ int main(void) {
 
 void vTask1( void *pvParameters )
 {
-const char *pcTaskName = "Task 1 is running\r\n";
-volatile uint32_t ul;
+	ret_code_t error_code = NRF_SUCCESS;
+	const char *pcTaskName = "Task 1 is running\r\n";
+	volatile uint32_t ul;
+
+	
+	
+  // initialize RTT library
+  error_code = NRF_LOG_INIT(NULL);
+  APP_ERROR_CHECK(error_code);
+  
+
+  // initialize LEDs
+  nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
+  
+    nrf_drv_spi_config_t spi_config = {
+    .sck_pin = BUCKLER_LCD_SCLK,
+    .mosi_pin = BUCKLER_LCD_MOSI,
+    .miso_pin = BUCKLER_LCD_MISO,
+    .ss_pin = BUCKLER_LCD_CS,
+    .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
+    .orc = 0,
+    .frequency = NRF_DRV_SPI_FREQ_4M,
+    .mode = NRF_DRV_SPI_MODE_2,
+    .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
+  };
+  error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
+  APP_ERROR_CHECK(error_code);
+
+  // initialize display driver
+
+  
+  printf("Display initialized\n");
+  
+
+  display_init(&spi_instance);
 
 
-	nrf_gpio_cfg_output(BUCKLER_LED0);
+	char buf[16]= {0};
+
 	/* As per most tasks, this task is implemented in an infinite loop. */
 	for( ;; )
 	{
-		
+		nrf_delay_ms(250);
+		print_state();
+		/* Print out the name of this task. */
+		printf( "%s %d\n",pcTaskName ,current_state);
+		switch(current_state){
+		case ON:
+			snprintf(buf, 16, "Hi Mom");
+			printf("case %d running on task %s", current_state, pcTaskName);
 
-		vTaskDelay(300);
-      	nrf_gpio_pin_toggle(BUCKLER_LED0);
-      	nrf_delay_ms(500);
+			break;
+
+		case OFF:
+			snprintf(buf, 16, "Bye Mom!");
+
+			break;
+
+
+
+		default:
+			snprintf(buf, 16, "Init");
+			break;
+
+		}
 		
+		display_write(buf,0);
+		/*
+		if(local->type)
+		{
+			snprintf(buf, 16, "aX%.3f Y%.3f",local->psi, local->phi);
+			display_write(buf,0);
+
+			snprintf(buf, 16, "aZ: %.3f ",local->degree);
+			display_write(buf,1);
+
+
+		}
+		else{
+			local->type = true;
+				display_write("Hi MOM", 0);
+			snprintf(buf, 16, "%.2f",local->psi);
+		display_write(buf,1);
+
+		}
+		*/
+		
+		vTaskDelay(300);
+
 	}
 }
 // /*-----------------------------------------------------------*/
@@ -194,8 +261,9 @@ volatile uint32_t ul;
     // Note: removing this delay will make responses quicker, but will result
     //  in printf's in this loop breaking JTAG
     nrf_delay_ms(250);
-   
     print_state();
+   
+    
     // iterate statechart
     switch(current_state){    
       case INIT:
@@ -225,8 +293,10 @@ volatile uint32_t ul;
         current_state = OFF;
 
     }
+    vTaskDelay(300);
     
   }
+
   
  
 }

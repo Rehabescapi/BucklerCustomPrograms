@@ -35,6 +35,7 @@ BOARD_VARS = \
 
 # Default SDK source files to be included 
 #app_timer.c\
+#app_timer.c\
 
 BOARD_SOURCES += \
 	SEGGER_RTT.c\
@@ -42,7 +43,6 @@ BOARD_SOURCES += \
 	SEGGER_RTT_printf.c\
 	app_error.c\
 	app_error_handler_gcc.c\
-	#app_timer.c\
 	app_pwm.c\
 	app_uart.c\
 	app_scheduler.c\

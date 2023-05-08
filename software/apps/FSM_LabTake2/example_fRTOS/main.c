@@ -16,8 +16,8 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-// #include "queue.h"
-// #include "timers.h"
+ #include "queue.h"
+ #include "timers.h"
 
 //#include "supporting_functions.h"
 
@@ -141,7 +141,7 @@ volatile uint32_t ul;
 	for( ;; )
 	{
 		/* Print out the name of this task. */
-		vPrintString( pcTaskName );
+		//vPrintString( pcTaskName );
 
 		vTaskDelay(300);
       	nrf_gpio_pin_toggle(BUCKLER_LED0);
@@ -161,7 +161,7 @@ volatile uint32_t ul;
 	for( ;; )
 	{
 		/* Print out the name of this task. */
-		vPrintString( pcTaskName );
+		//vPrintString( pcTaskName );
 
     
 		vTaskDelay(300);

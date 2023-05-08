@@ -4,6 +4,7 @@
 
 typedef enum{
 	INIT = 0,	
-	ON   = 1,
+	ACC   = 1,
+	GYRO  =2,
 	OFF
 }state;

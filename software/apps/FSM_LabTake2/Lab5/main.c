@@ -70,8 +70,6 @@ void prvSetupHardware(){
 void vTask1( void *pvParameters );
 void vTask2( void *pvParameters );
 
-
-
 void initialize_hardware(){
   ret_code_t error_code = NRF_SUCCESS;
 
@@ -107,7 +105,10 @@ void initialize_hardware(){
 
   // initialize LSM9DS1 driver
   lsm9ds1_init(&twi_mngr_instance);
-  printf("lsm9ds1 initialized\n");
+
+
+  lsm9ds1_start_gyro_integration();
+  printf("lsm9ds1 and Gyro initialized\n");
   
 
 }
@@ -214,7 +215,7 @@ void vTask1( void *pvParameters )
 
 
 		switch(current_state){
-		case ON:
+		case ACC:
 			acc_measurement = lsm9ds1_read_accelerometer();
 			snprintf(buf, 16, "Hi Mom");
 			printf("case %d running on task %s", current_state, pcTaskName);
@@ -229,8 +230,23 @@ void vTask1( void *pvParameters )
 
 				snprintf(buf2, 16, "aZ: %.3f ",local->degree);
 				display_write(buf2,1);
+			break;
+
+		case GYRO:
+			acc_measurement = lsm9ds1_read_gyro_integration();
+			snprintf(buf, 16, "Hi Mom");
+			printf("case %d running on task %s", current_state, pcTaskName);
+			local->psi = acc_measurement.x_axis;
+			local->phi = acc_measurement.y_axis;
+			local->degree = acc_measurement.z_axis;
 
 
+		
+				snprintf(buf, 16, "gX%.3f Y%.3f",local->psi, local->phi);
+				display_write(buf,0);
+
+				snprintf(buf2, 16, "gZ: %.3f ",local->degree);
+				display_write(buf2,1);
 			break;
 
 		case OFF:
@@ -265,6 +281,7 @@ volatile uint32_t ul;
 
 
 	nrf_gpio_cfg_output(BUCKLER_LED1);
+	bool transition = false;
 	
   // loop forever, running state machine
   while (1) {
@@ -272,34 +289,48 @@ volatile uint32_t ul;
     // Note: removing this delay will make responses quicker, but will result
     //  in printf's in this loop breaking JTAG
     nrf_delay_ms(250);
+
+    if(gpio_read(BUCKLER_BUTTON0)){
+    	transition = true;
+    }
    
    
     
     // iterate statechart
     switch(current_state){    
+      
       case INIT:
         // move on to testing the button status
         current_state = OFF;
         break;
-      case ON:
+      case ACC:
+        gpio_clear(BUCKLER_LED0);
         
-        gpio_clear(BUCKLER_LED0);    
-        if (gpio_read(BUCKLER_BUTTON0) )
+        if (!gpio_read(BUCKLER_BUTTON0) && transition)
           {
-            
-            current_state = OFF;
-            
+            transition = false;
+            current_state = GYRO;
+                   
             
           }
         break;
       case OFF:
         gpio_set(BUCKLER_LED0);
         
-        if (!gpio_read(BUCKLER_BUTTON0) )
-          {current_state = ON;   
+        if (!gpio_read(BUCKLER_BUTTON0) && transition)
+          {current_state = ACC;   
+          transition = false;       
+          
           }
         break;
-      
+      case GYRO:
+        gpio_toggle(BUCKLER_LED0);
+
+        if(!gpio_read(BUCKLER_BUTTON0) && transition){
+          current_state = OFF;
+          transition = false;
+        }
+        break;
       default:
         current_state = OFF;
 

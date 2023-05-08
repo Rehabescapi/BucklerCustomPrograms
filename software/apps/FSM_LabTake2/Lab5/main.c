@@ -35,6 +35,10 @@ void print_state(){
 }
 
 
+typedef struct ThirdAngle{
+   float phi, psi , degree;
+   bool type;
+}ThirdAngle;
 
 /* Define the linked list structure.  This is used to link free blocks in order
  * of their size. */
@@ -115,6 +119,7 @@ int main(void) {
     error_code = nrf_drv_clock_init();
     APP_ERROR_CHECK(error_code);
   	initialize_hardware();
+  	ThirdAngle sharedVar =  {0.0,0.0,0.0, true};
 
 
   
@@ -125,7 +130,7 @@ int main(void) {
   current_state = INIT; 
 
 
- xTaskCreate( vTask1, "Task 1", configMINIMAL_STACK_SIZE + 200, NULL, 2, &vtask1_handle);
+ xTaskCreate( vTask1, "Task 1", configMINIMAL_STACK_SIZE + 200, &sharedVar, 2, &vtask1_handle);
  xTaskCreate( vTask2, "Task 2", configMINIMAL_STACK_SIZE + 200, NULL, 2, &vtask2_handle);
  /* The task handle is the last parameter _____^^^^^^^^^^^^^ */
 
@@ -157,8 +162,10 @@ void vTask1( void *pvParameters )
 	ret_code_t error_code = NRF_SUCCESS;
 	const char *pcTaskName = "Task 1 is running\r\n";
 	volatile uint32_t ul;
-
+	lsm9ds1_measurement_t acc_measurement;
 	
+
+	ThirdAngle  *local = (ThirdAngle*) pvParameters;
 	
   // initialize RTT library
   error_code = NRF_LOG_INIT(NULL);
@@ -192,6 +199,7 @@ void vTask1( void *pvParameters )
 
 
 	char buf[16]= {0};
+	char buf2[16] = {0};
 
 	/* As per most tasks, this task is implemented in an infinite loop. */
 	for( ;; )
@@ -200,47 +208,50 @@ void vTask1( void *pvParameters )
 		print_state();
 		/* Print out the name of this task. */
 		printf( "%s %d\n",pcTaskName ,current_state);
+
+		
+
+
+
 		switch(current_state){
 		case ON:
+			acc_measurement = lsm9ds1_read_accelerometer();
 			snprintf(buf, 16, "Hi Mom");
 			printf("case %d running on task %s", current_state, pcTaskName);
+			local->psi = acc_measurement.x_axis;
+			local->phi = acc_measurement.y_axis;
+			local->degree = acc_measurement.z_axis;
+
+
+		
+				snprintf(buf, 16, "aX%.3f Y%.3f",local->psi, local->phi);
+				display_write(buf,0);
+
+				snprintf(buf2, 16, "aZ: %.3f ",local->degree);
+				display_write(buf2,1);
+
 
 			break;
 
 		case OFF:
-			snprintf(buf, 16, "Bye Mom!");
-
+			if(true)
+			{
+				snprintf(buf, 16, "");
+				display_write(buf,0);
+				display_write("",1);
+			}
+			
 			break;
 
 
 
 		default:
-			snprintf(buf, 16, "Init");
+			snprintf(buf, 16, "Lab5 Q2");
 			break;
 
 		}
 		
 		display_write(buf,0);
-		/*
-		if(local->type)
-		{
-			snprintf(buf, 16, "aX%.3f Y%.3f",local->psi, local->phi);
-			display_write(buf,0);
-
-			snprintf(buf, 16, "aZ: %.3f ",local->degree);
-			display_write(buf,1);
-
-
-		}
-		else{
-			local->type = true;
-				display_write("Hi MOM", 0);
-			snprintf(buf, 16, "%.2f",local->psi);
-		display_write(buf,1);
-
-		}
-		*/
-		
 		vTaskDelay(300);
 
 	}
@@ -261,7 +272,7 @@ volatile uint32_t ul;
     // Note: removing this delay will make responses quicker, but will result
     //  in printf's in this loop breaking JTAG
     nrf_delay_ms(250);
-    print_state();
+   
    
     
     // iterate statechart

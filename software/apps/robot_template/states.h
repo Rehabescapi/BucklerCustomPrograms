@@ -10,6 +10,7 @@ typedef enum {
 	RIGHT,
 	LEFT,
 	REORIENT,
+	STARTING,
 } states;
 
 typedef enum {

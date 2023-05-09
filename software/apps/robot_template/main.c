@@ -88,6 +88,8 @@ int main(void) {
   states state = OFF;
   KobukiSensors_t sensors = {0};
 
+  char buf[16] = {0};
+
   // loop forever, running state machine
   while (1) {
     // read sensors from robot
@@ -109,13 +111,26 @@ int main(void) {
         } else {
           // perform state-specific actions here
           display_write("OFF", DISPLAY_LINE_0);
-          printf("OFF : %f \n", distance);
+          snprintf(buf, 16, "%d", previous_encoder);
+          display_write(buf, DISPLAY_LINE_1);
+
+          //printf("OFF : %f \n", distance);
           kobukiDriveDirect(0,0);
 
           state = OFF;
         }
         break; // each case needs to end with break!
       }
+
+    case STARTING:{
+
+
+      display_write("STARTING", DISPLAY_LINE_0);
+
+      nrf_delay_ms(50);
+      state = DRIVING;
+
+    }
 
       case DRIVING: {
         // transition logic
@@ -124,15 +139,32 @@ int main(void) {
         } else {
           // perform state-specific actions here
           
-          kobukiDriveDirect(100,100); 
+          kobukiDriveDirect(50,50); 
            
           distance = update_dist(distance, previous_encoder, true);
           display_write("DRIVING", DISPLAY_LINE_0);
+          snprintf(buf,16, "distance %f", distance);
+          display_write(buf,  DISPLAY_LINE_1);
           printf("DRIVING : %f \n", distance);
           state = DRIVING;
+
+
+
         }
         break; // each case needs to end with break!
       }
+
+
+    case RIGHT:{
+      if(is_button_pressed(&sensors)){
+        state = OFF;
+
+      }
+
+      kobukiDriveDirect(50, -50);
+      display_write("TURNING RIGHT", DISPLAY_LINE_0);
+      printf("TURNING : %f \n", distance);
+    }
 
       // add other cases here
 

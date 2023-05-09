@@ -107,7 +107,7 @@ int main(void) {
   while (1) {
     // read sensors from robot
     kobukiSensorPoll(&sensors);
-
+    printf("BUtton Press: %d \n", is_button_press(&sensors));
     // delay before continuing
     // Note: removing this delay will make responses quicker, but will result
     //  in printf's in this loop breaking JTAG
@@ -140,20 +140,20 @@ int main(void) {
     ///////////////////////////////////////
 
  
-    if (distance<=0.2){
+    // if (distance<=0.2){
 
-          drive_kobuki(50,50);
-          printf("Encoders: %d - %d \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder);
-          distance = distance_measure(prev_encoder);
-    }
-    else
-    {
-      stop_kobuki();
-      printf("Distance Reached! \n");
-    }
+    //       drive_kobuki(50,50);
+    //       printf("Encoders: %d - %d \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder);
+    //       distance = distance_measure(prev_encoder);
+    // }
+    // else
+    // {
+    //   stop_kobuki();
+    //   printf("Distance Reached! \n");
+    // }
     
 
-    printf("Distance: %f \n", distance);
+    // printf("Distance: %f \n", distance);
 
 }
 

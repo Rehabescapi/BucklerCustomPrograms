@@ -42,6 +42,7 @@ uint16_t read_encoder(){
 
 float update_dist(float dist, uint16_t prev_encoder, bool is_forward){
   const float CONVERSION = 0.00008529;
+  //const float CONVERSION = 0.00677;
   uint16_t current_encoder = read_encoder();
   float result = 0.0;
   if (!is_forward){
@@ -52,9 +53,11 @@ float update_dist(float dist, uint16_t prev_encoder, bool is_forward){
   if (current_encoder >= prev_encoder) {
     // normal case
     result = (float)current_encoder - (float)prev_encoder;
+    printf("Normal Case %f \n", result);
   } else {
     // account for wrap
     result = (float)current_encoder + (0xFFFF - (float)prev_encoder);
+     printf("Wrap Case %f \n", result);
   }
   result = result * CONVERSION;
   printf("%f \n",result);

@@ -119,6 +119,9 @@ int main(void) {
 
           state = OFF;
         }
+
+
+        printf("%d" , is_center_bumper());
         break; // each case needs to end with break!
       }
 
@@ -134,7 +137,7 @@ int main(void) {
 
       case DRIVING: {
         // transition logic
-        if (is_button_pressed(&sensors)) {
+        if (is_button_pressed(&sensors) || is_center_bumper()) {
           state = OFF;
         } else {
           // perform state-specific actions here

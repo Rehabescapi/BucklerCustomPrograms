@@ -30,21 +30,26 @@
 
 extern KobukiSensors_t sensors;
 
-#define CONVERSION 0.000677 // 2*pi/65535 * Wheel_dia
+#define CONVERSION 0.000677 // 2*pi/65535 * Wheel_dia in cm
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 
 
 float distance = 0.0f;
+float bias = 0.0f;
 
 
 float distance_measure(uint16_t encoder)
 {
-  uint16_t cur_encoder = sensors.leftWheelEncoder;
+  kobukiSensorPoll(&sensors);
+  uint16_t cur_encoder = sensors.leftWheelEncoder ;
+
+  
 
   float updated_dist = cur_encoder - encoder;
 
-  return (float) updated_dist * CONVERSION; 
+
+  return (float) (updated_dist * CONVERSION) -bias; 
 }
 
 
@@ -56,7 +61,7 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Log initialized!\n");
-
+ 
 
 
   // initialize display
@@ -91,46 +96,99 @@ int main(void) {
   printf("IMU initialized!\n");
 
   // initialize Kobuki
+  
   kobukiInit();
-  printf("Kobuki initialized!\n");
+
+
+   bias = distance_measure(0);
+   float goal = .5;
+
+  printf("Kobuki initialized! with initial bias of %f\n",bias);
 
   // configure initial state
   states state = OFF;
-  // KobukiSensors_t sensors = {0};
+  KobukiSensors_t sensors = {0};
 
   // distance measurement, encoder
-  uint16_t prev_encoder = read_encoder();
+  uint16_t prev_encoder = sensors.leftWheelEncoder -bias;
 
   float angle = 0.0f;
+  float goalAngle =  90.0f;
+  int step = 1;
+  int buf[16] = {0};
   
   // loop forever, running state machine
   while (1) {
     // read sensors from robot
     kobukiSensorPoll(&sensors);
-    printf("BUtton Press: %d \n", is_button_press(&sensors));
+   
     // delay before continuing
     // Note: removing this delay will make responses quicker, but will result
     //  in printf's in this loop breaking JTAG
     nrf_delay_ms(50);
 
+    switch(step){
     /// Testing the Point Rotation 
     ///////////////////////////////////////
-    // start_gyro();
+     case 0:
+        start_gyro();
 
-    // if (abs(angle)<=90)
-    // {
+       if (abs(angle)<=goalAngle)
+       {
 
-    //   angle = read_gyro();
-    //   printf("Angle: %f \n", angle);
-    //   drive_kobuki(-50, 50);
+        angle = read_gyro();
+         printf("Angle: %f \n", angle);
 
-    // }
+          display_write("Spining Right", DISPLAY_LINE_0);
+          snprintf(buf, 16, "g: %.2f c %.2f", goalAngle, angle);
+          display_write(buf, DISPLAY_LINE_1);
 
-    // else{      
-    //   stop_gyro();
-    //   stop_kobuki();      
-    //   }
+         drive_kobuki(50, -50);
+
+       }
+
+       else{      
+         stop_gyro();
+         stop_kobuki();
+         step = 1; 
+         distance = distance_measure(prev_encoder);
+         goal = distance + .5;
+         //bias = distance_measure(0);     
+        }
+        break;
+
+    case 1:
+      if (distance<=goal){
+
+           drive_kobuki(50,50);
+           printf("Encoders: %d - %d\n bias\t %f \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder, bias);
+           distance = distance_measure(prev_encoder);
+           snprintf(buf, 16, "Distance %f", distance);
+          display_write(buf, DISPLAY_LINE_1);
+
+
+           snprintf(buf, 16, "Goal %f", goal);
+          display_write(buf, DISPLAY_LINE_0);
+     }
+     else
+     {
+       stop_kobuki();
+       printf("Distance Reached! \n");
+      
+       nrf_delay_ms(500);
+       goalAngle = (angle + 90.0 );
+       if(goalAngle > 360){
+        goalAngle = goalAngle - 360;
+       }
+       step = 0;
+     }
     
+
+     printf("Distance: %f \n", distance);
+
+      break;
+
+    }
 
     /////////////////////////////////////////////
 
@@ -140,21 +198,12 @@ int main(void) {
     ///////////////////////////////////////
 
  
-    // if (distance<=0.2){
 
-    //       drive_kobuki(50,50);
-    //       printf("Encoders: %d - %d \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder);
-    //       distance = distance_measure(prev_encoder);
-    // }
-    // else
-    // {
-    //   stop_kobuki();
-    //   printf("Distance Reached! \n");
-    // }
+     
     
 
-    // printf("Distance: %f \n", distance);
+     
 
 }
-
+return 0;
 }

@@ -56,8 +56,7 @@ float distance_measure(uint16_t encoder)
 
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
-
-  // initialize RTT library
+   // initialize RTT library
   error_code = NRF_LOG_INIT(NULL);
   APP_ERROR_CHECK(error_code);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
@@ -65,25 +64,6 @@ int main(void) {
 
 
 
-
-  // initialize display
-  nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
-  nrf_drv_spi_config_t spi_config = {
-    .sck_pin = BUCKLER_LCD_SCLK,
-    .mosi_pin = BUCKLER_LCD_MOSI,
-    .miso_pin = BUCKLER_LCD_MISO,
-    .ss_pin = BUCKLER_LCD_CS,
-    .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
-    .orc = 0,
-    .frequency = NRF_DRV_SPI_FREQ_4M,
-    .mode = NRF_DRV_SPI_MODE_2,
-    .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
-  };
-  error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
-  APP_ERROR_CHECK(error_code);
-  display_init(&spi_instance);
-  display_write("Hello, uman!", DISPLAY_LINE_0);
-  printf("Display initialized!\n");
 
 
     // initialize i2c master (two wire interface)
@@ -102,17 +82,45 @@ int main(void) {
 
 
 
-
   // initialize Kobuki
-  
   kobukiInit();
-
 
    bias = distance_measure(0);
    float goal = .5;
 
   printf("Kobuki initialized! with initial bias of %f\n",bias);
-  display_write("KObuki Init!", DISPLAY_LINE_1);
+  
+
+
+
+ 
+
+
+  // initialize display
+  nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
+  nrf_drv_spi_config_t spi_config = {
+    .sck_pin = BUCKLER_LCD_SCLK,
+    .mosi_pin = BUCKLER_LCD_MOSI,
+    .miso_pin = BUCKLER_LCD_MISO,
+    .ss_pin = BUCKLER_LCD_CS,
+    .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
+    .orc = 0,
+    .frequency = NRF_DRV_SPI_FREQ_4M,
+    .mode = NRF_DRV_SPI_MODE_2,
+    .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
+  };
+  error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
+  APP_ERROR_CHECK(error_code);
+  display_init(&spi_instance);
+  
+
+
+  display_write("Hello, uman!", DISPLAY_LINE_0);
+  printf("Display initialized!\n");
+
+
+
+
 
   // configure initial state
   states state = OFF;
@@ -127,10 +135,10 @@ int main(void) {
   int buf[16] = {0};
 
   void setNextAngle(int target){
-  stop_gyro();
-  stop_kobuki();              
- angle = 0;
- goalAngle=target;
+    stop_gyro();
+    stop_kobuki();              
+   angle = 0;
+   goalAngle=target;
  nrf_delay_ms(300);
 }
  int switchCount = 0;
@@ -143,7 +151,6 @@ int main(void) {
   while (1) {
     // read sensors from robot
     kobukiSensorPoll(&sensors);
-    printf("%d\n", sensors);
    
     // delay before continuing
     // Note: removing this delay will make responses quicker, but will result
@@ -159,7 +166,7 @@ int main(void) {
         // transition logic
         if (is_button_pressed(&sensors)) {
           bias = distance_measure(prev_encoder);
-          goal = bias + 500;
+          goal = bias + 5;
           state = COUNTDOWN;
           // saving the wheel encoder position the moment we start moving
          
@@ -178,18 +185,15 @@ int main(void) {
     case COUNTDOWN:{
       
       int x =0;
+      display_write("COUNTDOWN", DISPLAY_LINE_0);
       while(x< 300){
         
        
-        char buf[16] = {0};
-        snprintf(buf, 16, "%u", x);
-        display_write(buf, x % 2);
-        x = x +1;
+        x = x +5;
          nrf_delay_ms(10);
           drive_kobuki(0,0);
 
       }
-      kobukiInit();
       
       state = DRIVING;
 

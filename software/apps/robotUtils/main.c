@@ -131,27 +131,36 @@ int main(void) {
   stop_kobuki();              
  angle = 0;
  goalAngle=target;
- nrf_delay_ms(3000);
-
+ nrf_delay_ms(300);
 }
+ int switchCount = 0;
+ int previousD =0;
+
+
 
   
   // loop forever, running state machine
   while (1) {
     // read sensors from robot
     kobukiSensorPoll(&sensors);
+    printf("%d\n", sensors);
    
     // delay before continuing
     // Note: removing this delay will make responses quicker, but will result
     //  in printf's in this loop breaking JTAG
     nrf_delay_ms(50);
+   
+
+
 
 
     switch(state) {
       case OFF: {
         // transition logic
         if (is_button_pressed(&sensors)) {
-          state = DRIVING;
+          bias = distance_measure(prev_encoder);
+          goal = bias + 500;
+          state = COUNTDOWN;
           // saving the wheel encoder position the moment we start moving
          
         } else {
@@ -165,6 +174,26 @@ int main(void) {
         }
         break;
       }
+
+    case COUNTDOWN:{
+      
+      int x =0;
+      while(x< 300){
+        
+       
+        char buf[16] = {0};
+        snprintf(buf, 16, "%u", x);
+        display_write(buf, x % 2);
+        x = x +1;
+         nrf_delay_ms(10);
+          drive_kobuki(0,0);
+
+      }
+      kobukiInit();
+      
+      state = DRIVING;
+
+    }
 
         
 
@@ -180,6 +209,58 @@ int main(void) {
             /// Testing the Point Rotation 
             ///////////////////////////////////////
              case 0:
+              if (distance<=goal){
+
+                   drive_kobuki(50,50);
+                   printf("Encoders: %d - %d\n bias\t %f \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder, bias);
+                   distance = distance_measure(prev_encoder);
+                  snprintf(buf, 16, "Distance %f", distance);
+                  display_write(buf, DISPLAY_LINE_1);
+
+
+                  snprintf(buf, 16, "Goal %f", goal);
+                  display_write(buf, DISPLAY_LINE_0);
+
+
+                  if(distance == previousD){
+                    printf("%f\n\n", distance);
+                    state = OFF;
+                  }
+                  previousD = distance;
+
+             }
+             else
+             {
+               stop_kobuki();
+               printf("Distance Reached! \n");
+              
+               nrf_delay_ms(500);
+               if(switchCount <2){
+                step = 1;
+               }else if(switchCount ==2){
+                step = 2;
+
+               }
+               else{
+                state = OFF;
+               }
+             
+
+
+              switchCount ++;
+             }
+            
+
+             printf("Distance: %f \n", distance);
+
+              break;
+
+
+
+
+
+
+             case 1:
                 start_gyro();
 
                if (abs(angle)<=goalAngle)
@@ -197,16 +278,17 @@ int main(void) {
                }
 
                else{      
-                 setNextAngle(90);
-                 step =1;
+                 setNextAngle(135);
+                 step =0;
                  nrf_delay_ms(500);
-                 //bias = distance_measure(0);     
+                 bias = distance_measure(0);
+
                 }
                 break;
 
 
 
-            case 1:
+            case 2:
                 start_gyro();
 
                if (abs(angle)<=goalAngle)
@@ -226,7 +308,7 @@ int main(void) {
                  //bias = distance_measure(0);     
                 }
               break;
-            case 2:
+            case 3:
               start_gyro();
                if (abs(angle)<=goalAngle)
                {

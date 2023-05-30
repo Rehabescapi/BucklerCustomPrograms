@@ -66,6 +66,19 @@ int main(void) {
 
 
 
+
+
+
+  // initialize Kobuki
+  kobukiInit();
+
+   bias = distance_measure(0);
+   float goal = .5;
+
+  printf("Kobuki initialized! with initial bias of %f\n",bias);
+
+
+
     // initialize i2c master (two wire interface)
   nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
   i2c_config.scl = BUCKLER_SENSORS_SCL;
@@ -79,22 +92,6 @@ int main(void) {
   lsm9ds1_init(&twi_mngr_instance);
   printf("IMU initialized!\n");
  
-
-
-
-  // initialize Kobuki
-  kobukiInit();
-
-   bias = distance_measure(0);
-   float goal = .5;
-
-  printf("Kobuki initialized! with initial bias of %f\n",bias);
-  
-
-
-
- 
-
 
   // initialize display
   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
@@ -124,7 +121,7 @@ int main(void) {
 
   // configure initial state
   states state = OFF;
-  KobukiSensors_t sensors = {0};
+  
 
   // distance measurement, encoder
   uint16_t prev_encoder = sensors.leftWheelEncoder -bias;
@@ -137,9 +134,9 @@ int main(void) {
   void setNextAngle(int target){
     stop_gyro();
     stop_kobuki();              
-   angle = 0;
-   goalAngle=target;
- nrf_delay_ms(300);
+    angle = 0;
+    goalAngle=target;
+    nrf_delay_ms(100);
 }
  int switchCount = 0;
  int previousD =0;
@@ -175,8 +172,7 @@ int main(void) {
           display_write("OFF", DISPLAY_LINE_0);
           
           //printf("OFF : %f \n", distance);
-          kobukiDriveDirect(0,0);
-
+          
           state = OFF;
         }
         break;
@@ -191,7 +187,7 @@ int main(void) {
        
         x = x +5;
          nrf_delay_ms(10);
-          drive_kobuki(0,0);
+         
 
       }
       
@@ -381,6 +377,6 @@ int main(void) {
      
 
 }
-kobukiStop();
+
 return 0;
 }

@@ -32,7 +32,7 @@
 
 #define CONVERSION 0.000677 // 2*pi/65535 * Wheel_dia in cm
 // I2C manager
-NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
+NRF_TWI_MNGR_DEF(twi_mngr_instance, 4, 0);
 
 float dinstance = 0.0f;
 float bias = 0.0f;
@@ -40,13 +40,14 @@ float bias = 0.0f;
 
 
 int main(void) {
+   KobukiSensors_t sensors;
+ 
+  ret_code_t error_code = NRF_SUCCESS;
 
   // intitialize Kobuki library
-  kobukiInit();
-  KobukiSensors_t sensors;
  
   // initialize RTT library
-  NRF_LOG_INIT(NULL);
+  error_code = NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Initialized RTT!\n");
 
@@ -55,21 +56,32 @@ int main(void) {
 
 
   float distance_measure(uint16_t encoder){
-  kobukiSensorPoll(&sensors);
-  uint16_t current_encoder = sensors.leftWheelEncoder;
-
-  float update_dist = current_encoder - encoder;
-
-  return (float) (update_dist * CONVERSION) - bias;
+    kobukiSensorPoll(&sensors);
+    uint16_t current_encoder = sensors.leftWheelEncoder;
+    float update_dist = current_encoder - encoder;
+    return (float) (update_dist * CONVERSION) - bias;
 }
 
+   // initialize i2c master (two wire interface)
+  nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
+  i2c_config.scl = BUCKLER_SENSORS_SCL;
+  i2c_config.sda = BUCKLER_SENSORS_SDA;
+  i2c_config.frequency = NRF_TWIM_FREQ_100K;
+  error_code = nrf_twi_mngr_init(&twi_mngr_instance, &i2c_config);
+  APP_ERROR_CHECK(error_code);
+  // initialize all the sensors in LSM9DS1
+  lsm9ds1_init(&twi_mngr_instance);
+  printf("IMU initialized!\n");
 
- bias = distance_measure(0);
+
+  kobukiInit();
+  bias = distance_measure(0);
   float goal = .5;
-
   printf("Kobuki Initialized initial bias of %f\n", bias);
 
 
+  float angle = 0.0f;
+  start_gyro();
 
   // loop forever
   while (1) {
@@ -77,6 +89,8 @@ int main(void) {
     // read kobuki sensor values
     
     kobukiSensorPoll(&sensors);
+    angle = read_gyro();
+    printf("Angle from gyro read at: %f\n\n", angle);
     printf("Hi mom");
 
     // print results
@@ -106,7 +120,12 @@ int main(void) {
     printf("Angle:\t%d\n", sensors.angle);
     printf("Rate:\t%d\n", sensors.angleRate);
 
-    nrf_delay_ms(50);
+
+    if(sensors.bumps_wheelDrops.bumpLeft ==1  && sensors.bumps_wheelDrops.bumpRight ==1)
+    {
+      printf("GO GO GO \n\n\n");
+    }
+    nrf_delay_ms(500);
   }
 }
 

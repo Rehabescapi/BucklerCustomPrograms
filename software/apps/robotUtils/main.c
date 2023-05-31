@@ -93,6 +93,9 @@ int main(void) {
   printf("IMU initialized!\n");
  
 
+
+
+  /*
   // initialize display
   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
   nrf_drv_spi_config_t spi_config = {
@@ -116,7 +119,7 @@ int main(void) {
   printf("Display initialized!\n");
 
 
-
+*/
 
 
   // configure initial state
@@ -169,9 +172,7 @@ int main(void) {
          
         } else {
           // perform state-specific actions here
-          display_write("OFF", DISPLAY_LINE_0);
-          
-          //printf("OFF : %f \n", distance);
+         
           
           state = OFF;
         }
@@ -181,7 +182,7 @@ int main(void) {
     case COUNTDOWN:{
       
       int x =0;
-      display_write("COUNTDOWN", DISPLAY_LINE_0);
+      
       while(x< 300){
         
        
@@ -214,12 +215,12 @@ int main(void) {
                    drive_kobuki(50,50);
                    printf("Encoders: %d - %d\n bias\t %f \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder, bias);
                    distance = distance_measure(prev_encoder);
-                  snprintf(buf, 16, "Distance %f", distance);
-                  display_write(buf, DISPLAY_LINE_1);
+                  //snprintf(buf, 16, "Distance %f", distance);
+                  //display_write(buf, DISPLAY_LINE_1);
 
 
-                  snprintf(buf, 16, "Goal %f", goal);
-                  display_write(buf, DISPLAY_LINE_0);
+                  //snprintf(buf, 16, "Goal %f", goal);
+                  //display_write(buf, DISPLAY_LINE_0);
 
 
                   if(distance == previousD){
@@ -268,10 +269,11 @@ int main(void) {
 
                 angle = read_gyro();
                  printf("Angle: %f \n", angle);
-
+                  /*
                   display_write("1 Spin Right", DISPLAY_LINE_0);
                   snprintf(buf, 16, "g: %.2f c %.2f", goalAngle, angle);
                   display_write(buf, DISPLAY_LINE_1);
+                  */
 
                  drive_kobuki(50, -50);
 
@@ -295,9 +297,10 @@ int main(void) {
                {
 
                 angle = read_gyro();
-                display_write("Phase 2 Right", DISPLAY_LINE_0);
-                snprintf(buf, 16, "g: %.2f c %.2f", goalAngle, angle);
-                display_write(buf, DISPLAY_LINE_1);
+                //display_write("Phase 2 Right", DISPLAY_LINE_0);
+                
+                //snprintf(buf, 16, "g: %.2f c %.2f", goalAngle, angle);
+                //display_write(buf, DISPLAY_LINE_1);
 
                 drive_kobuki(50, -50);
 
@@ -308,27 +311,6 @@ int main(void) {
                  //bias = distance_measure(0);     
                 }
               break;
-            case 3:
-              start_gyro();
-               if (abs(angle)<=goalAngle)
-               {
-
-                angle = read_gyro();
-                display_write("Phase 3 Right", DISPLAY_LINE_0);
-                snprintf(buf, 16, "g: %.2f c %.2f", goalAngle, angle);
-                display_write(buf, DISPLAY_LINE_1);
-
-                drive_kobuki(50, -50);
-
-              }
-               else{      
-                stop_gyro();
-                setNextAngle(90);
-                state = OFF;
-                
-               }
-
-               break;
 
             case 6:
               if (distance<=goal){
@@ -336,12 +318,12 @@ int main(void) {
                    drive_kobuki(50,50);
                    printf("Encoders: %d - %d\n bias\t %f \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder, bias);
                    distance = distance_measure(prev_encoder);
-                  snprintf(buf, 16, "Distance %f", distance);
-                  display_write(buf, DISPLAY_LINE_1);
+                  //snprintf(buf, 16, "Distance %f", distance);
+                  //display_write(buf, DISPLAY_LINE_1);
 
 
-                  snprintf(buf, 16, "Goal %f", goal);
-                  display_write(buf, DISPLAY_LINE_0);
+                  //snprintf(buf, 16, "Goal %f", goal);
+                  //display_write(buf, DISPLAY_LINE_0);
              }
              else
              {

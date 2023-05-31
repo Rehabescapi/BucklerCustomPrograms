@@ -19,6 +19,7 @@
 #include "nrf_serial.h"
 
 #include "buckler.h"
+#include "display.h"
 #include "kobukiActuator.h"
 #include "kobukiSensorTypes.h"
 #include "kobukiSensorPoll.h"
@@ -74,6 +75,30 @@ int main(void) {
   printf("IMU initialized!\n");
 
 
+    // initialize display
+  nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
+  nrf_drv_spi_config_t spi_config = {
+    .sck_pin = BUCKLER_LCD_SCLK,
+    .mosi_pin = BUCKLER_LCD_MOSI,
+    .miso_pin = BUCKLER_LCD_MISO,
+    .ss_pin = BUCKLER_LCD_CS,
+    .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
+    .orc = 0,
+    .frequency = NRF_DRV_SPI_FREQ_4M,
+    .mode = NRF_DRV_SPI_MODE_2,
+    .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
+  };
+  error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
+  APP_ERROR_CHECK(error_code);
+  display_init(&spi_instance);
+  
+
+
+  display_write("Hello, uman!", DISPLAY_LINE_0);
+  printf("Display initialized!\n");
+
+
+
   kobukiInit();
   bias = distance_measure(0);
   float goal = .5;
@@ -124,6 +149,9 @@ int main(void) {
     if(sensors.bumps_wheelDrops.bumpLeft ==1  && sensors.bumps_wheelDrops.bumpRight ==1)
     {
       printf("GO GO GO \n\n\n");
+      display_write("L 1 R 1",DISPLAY_LINE_1);
+    }else{
+      display_write("", DISPLAY_LINE_1);
     }
     nrf_delay_ms(500);
   }

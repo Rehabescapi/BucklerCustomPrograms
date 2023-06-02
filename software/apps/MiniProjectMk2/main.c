@@ -127,9 +127,9 @@ int main(void) {
     start_gyro();
 }
   int phaseCount = 0;
-  int weight =.5;
+  float weight =.5;
   
-  uint16_t prev_encoder = sensors.leftWheelEncoder -bias;
+  uint16_t prev_encoder = sensors.leftWheelEncoder - bias;
 
 
   // loop forever
@@ -141,7 +141,7 @@ int main(void) {
     angle = read_gyro();
     if(startCycle)
     {
-      printf("Got to start cycle");
+      
 
     switch(state){
     case OFF: 
@@ -154,7 +154,7 @@ int main(void) {
           state = DRIVING;
           goal = distance_measure(prev_encoder) + weight;
 
-        }else
+        }else if(phaseCount %2 ==1)
         {
            state = RIGHT;
         }
@@ -165,6 +165,11 @@ int main(void) {
       }
       snprintf(buf, 16, "OFF! C:%d", phaseCount);
        display_write(buf, DISPLAY_LINE_0);
+        snprintf(buf, 16, "D:%.3f G:%.3f", distance, goal);
+          display_write(buf, DISPLAY_LINE_1);
+
+
+
        stop_kobuki();
 
       break;
@@ -196,27 +201,26 @@ int main(void) {
       break;
 
    
-  case DRIVING:
+    case DRIVING:
+       distance = distance_measure(prev_encoder);
     if (distance<=goal){
 
            drive_kobuki(50,50);
            printf("Encoders: %d - %d\n bias\t %f \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder, bias);
-           distance = distance_measure(prev_encoder);
-           snprintf(buf, 16, "Distance %f", distance);
+           snprintf(buf, 16, "D:%.3f G:%.3f", distance, goal);
           display_write(buf, DISPLAY_LINE_1);
 
 
-           snprintf(buf, 16, "Goal %f", goal);
-          display_write(buf, DISPLAY_LINE_0);
+          
      }
      else
      {
        stop_kobuki();
        printf("Distance Reached! \n");
       
-       if(phaseCount <=2)
+       if(phaseCount <=12)
        {
-        weight = 5;
+        weight = .5;
        }
        else{
         weight =.77;

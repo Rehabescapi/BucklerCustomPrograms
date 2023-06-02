@@ -35,7 +35,7 @@
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 4, 0);
 
-float dinstance = 0.0f;
+float distance = 0.0f;
 float bias = 0.0f;
 
 
@@ -102,11 +102,35 @@ int main(void) {
   kobukiInit();
   bias = distance_measure(0);
   float goal = .5;
+  float goalAngle = 90;
+  states state = OFF;
+   int buf[16] = {0};
   printf("Kobuki Initialized initial bias of %f\n", bias);
+  stop_kobuki();
+  bool startCycle = false;
 
 
   float angle = 0.0f;
   start_gyro();
+
+  /** Helper function to reset
+   * 
+   * 
+   * */
+
+   void setNextAngle(int target){
+    stop_gyro();
+    stop_kobuki();              
+    angle = 0;
+    goalAngle=target;
+    nrf_delay_ms(100);
+    start_gyro();
+}
+  int phaseCount = 0;
+  int weight =.5;
+  
+  uint16_t prev_encoder = sensors.leftWheelEncoder -bias;
+
 
   // loop forever
   while (1) {
@@ -115,8 +139,104 @@ int main(void) {
     
     kobukiSensorPoll(&sensors);
     angle = read_gyro();
+    if(startCycle)
+    {
+      printf("Got to start cycle");
+
+    switch(state){
+    case OFF: 
+      if(sensors.bumps_wheelDrops.bumpCenter== 1 &&sensors.bumps_wheelDrops.bumpRight ==0){
+       
+
+        if(phaseCount %2 == 0)
+        { 
+          
+          state = DRIVING;
+          goal = distance_measure(prev_encoder) + weight;
+
+        }else
+        {
+           state = RIGHT;
+        }
+        phaseCount++;
+       
+       
+       
+      }
+      snprintf(buf, 16, "OFF! C:%d", phaseCount);
+       display_write(buf, DISPLAY_LINE_0);
+       stop_kobuki();
+
+      break;
+    case RIGHT:
+      if(is_button_pressed(&sensors)){
+        
+        state = OFF;
+      }
+      if(abs(angle)<= goalAngle){
+        printf("Angle : %f \n", angle);
+        display_write("Turning", DISPLAY_LINE_0);
+
+         snprintf(buf, 16, "g: %.2f c %.2f", goalAngle, (goalAngle -abs(angle)));
+                  display_write(buf, DISPLAY_LINE_1);
+                  nrf_delay_ms(50);
+
+
+
+
+        drive_kobuki(50,-50);
+
+      }
+
+      else {
+        nrf_delay_ms(300);
+        setNextAngle(135);
+        state = OFF;
+      }
+      break;
+
+   
+  case DRIVING:
+    if (distance<=goal){
+
+           drive_kobuki(50,50);
+           printf("Encoders: %d - %d\n bias\t %f \n", sensors.leftWheelEncoder, sensors.rightWheelEncoder, bias);
+           distance = distance_measure(prev_encoder);
+           snprintf(buf, 16, "Distance %f", distance);
+          display_write(buf, DISPLAY_LINE_1);
+
+
+           snprintf(buf, 16, "Goal %f", goal);
+          display_write(buf, DISPLAY_LINE_0);
+     }
+     else
+     {
+       stop_kobuki();
+       printf("Distance Reached! \n");
+      
+       if(phaseCount <=2)
+       {
+        weight = 5;
+       }
+       else{
+        weight =.77;
+       }
+       state = OFF;
+     }
+
+
+    break;
+}
+    
+  }
+
+
+
+
     printf("Angle from gyro read at: %f\n\n", angle);
-    printf("Hi mom");
+    
+
+
 
     // print results
     printf("\n");
@@ -146,14 +266,20 @@ int main(void) {
     printf("Rate:\t%d\n", sensors.angleRate);
 
 
-    if(sensors.bumps_wheelDrops.bumpLeft ==1  && sensors.bumps_wheelDrops.bumpRight ==1)
+    printf("Is buutton pressed: %d\n", is_button_pressed(&sensors));
+
+
+    if(sensors.bumps_wheelDrops.bumpLeft ==1  && sensors.bumps_wheelDrops.bumpRight ==1 && sensors.bumps_wheelDrops.bumpCenter ==0)
     {
       printf("GO GO GO \n\n\n");
       display_write("L 1 R 1",DISPLAY_LINE_1);
+      startCycle = true;
+      state = OFF;
+     
     }else{
-      display_write("", DISPLAY_LINE_1);
+      
     }
-    nrf_delay_ms(500);
+    nrf_delay_ms(50);
   }
 }
 

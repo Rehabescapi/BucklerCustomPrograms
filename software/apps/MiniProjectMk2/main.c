@@ -145,10 +145,14 @@ int main(void) {
 
     switch(state){
     case OFF: 
-      if(sensors.bumps_wheelDrops.bumpCenter== 1 &&sensors.bumps_wheelDrops.bumpRight ==0){
-       
+      //if(sensors.bumps_wheelDrops.bumpCenter== 1 &&sensors.bumps_wheelDrops.bumpRight ==0){
 
-        if(phaseCount %2 == 0)
+       
+        if(phaseCount >4){
+          display_write("Finished!!", DISPLAY_LINE_0);
+
+        }else{
+           if(phaseCount %2 == 0)
         { 
           
           state = DRIVING;
@@ -159,10 +163,13 @@ int main(void) {
            state = RIGHT;
         }
         phaseCount++;
+
+        }
        
        
        
-      }
+       
+      //}
       snprintf(buf, 16, "OFF! C:%d", phaseCount);
        display_write(buf, DISPLAY_LINE_0);
         snprintf(buf, 16, "D:%.3f G:%.3f", distance, goal);

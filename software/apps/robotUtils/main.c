@@ -117,6 +117,8 @@ int main(void) {
   int step = 1;
   int buf[16] = {0};
   
+  stop_kobuki();
+
   // loop forever, running state machine
   while (1) {
     // read sensors from robot
@@ -125,7 +127,7 @@ int main(void) {
     // delay before continuing
     // Note: removing this delay will make responses quicker, but will result
     //  in printf's in this loop breaking JTAG
-    nrf_delay_ms(50);
+    nrf_delay_ms(10);
 
     switch(step){
     /// Testing the Point Rotation 

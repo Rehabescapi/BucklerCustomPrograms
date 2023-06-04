@@ -115,7 +115,7 @@ BOARD_SOURCES += \
 	nrf_ble_qwr.c\
 	nrf_sdh_ble.c\
 	simple_ble.c\
-# 	ble_conn_params.c\
+	ble_conn_params.c\
 
 
 endif

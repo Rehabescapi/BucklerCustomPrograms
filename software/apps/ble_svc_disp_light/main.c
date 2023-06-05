@@ -63,8 +63,20 @@ void light_timer_callback() {
 simple_ble_app_t* simple_ble_app;
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
-     // Implement the display action
+
+    printf("Got to here\n");
+    if(simple_ble_is_char_event(p_ble_evt, &display_char))
+    {
+    printf("Inner If statement %s\n", display_data);
+   
+    char lineOne[16], lineTwo[16];
+    memcpy(lineOne, display_data, 16*sizeof(char));
+    memcpy(lineTwo,&display_data[16], 16*sizeof(char));
+    display_write(lineOne, DISPLAY_LINE_0);
+    display_write(lineTwo, DISPLAY_LINE_1);
+
     }
+}
 
 
 

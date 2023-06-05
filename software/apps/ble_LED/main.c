@@ -12,6 +12,7 @@
 
 // Pin definitions
 #define LED BUCKLER_LED0
+#define LED2 BUCKLER_LED2
 
 // Intervals for advertising and connections
 static simple_ble_config_t ble_config = {
@@ -28,9 +29,19 @@ static simple_ble_service_t led_service = {{
     .uuid128 = {0x70,0x6C,0x98,0x41,0xCE,0x43,0x14,0xA9,
                 0xB5,0x4D,0x22,0x2B,0x89,0x10,0xE6,0x32}
 }};
-
+/*
+static simple_ble_service_t led_service2 = {{
+    .uuid128 = {0x70,0x6C,0x98,0x41,0xCE,0x43,0x14,0xA9,
+                0xB5,0x4D,0x22,0x2B,0x89,0x10,0xE6,0x39}
+}};
+*/
 static simple_ble_char_t led_state_char = {.uuid16 = 0x8911};
+
+
+static simple_ble_char_t led_state_char2 = {.uuid16 = 0x2913};
+
 static bool led_state = false;
+//static bool led_state2 = false;
 
 /*******************************************************************************
  *   State for this application
@@ -49,6 +60,16 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
         nrf_gpio_pin_set(LED);
       }
     }
+    /*if (simple_ble_is_char_event(p_ble_evt, &led_state_char2)) {
+      printf("Got write to LED2 characteristic!\n");
+      if (led_state2) {
+        printf("Turning on LED2!\n");
+        nrf_gpio_pin_clear(LED2);
+      } else {
+        printf("Turning off LED2!\n");
+        nrf_gpio_pin_set(LED2);
+      }
+    }*/
 }
 
 int main(void) {
@@ -57,15 +78,27 @@ int main(void) {
 
   // Setup LED GPIO
   nrf_gpio_cfg_output(LED);
+  nrf_gpio_cfg_output(LED2);
 
   // Setup BLE
   simple_ble_app = simple_ble_init(&ble_config);
+
 
   simple_ble_add_service(&led_service);
 
   simple_ble_add_characteristic(1, 1, 0, 0,
       sizeof(led_state), (uint8_t*)&led_state,
       &led_service, &led_state_char);
+      
+
+  /*
+  simple_ble_add_service(&led_service2);
+
+
+  simple_ble_add_characteristic(1,1,0,0,
+    sizeof(led_state), (uint8_t*)&led_state2,
+    &led_service2, &led_state_char2);
+    */
 
   // Start Advertising
   simple_ble_adv_only_name();

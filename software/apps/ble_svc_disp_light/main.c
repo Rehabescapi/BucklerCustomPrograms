@@ -49,7 +49,7 @@ static simple_ble_service_t light_service = {{
 }};
 
 static simple_ble_char_t light_char = {.uuid16 = 0xaeef};
-static float light_value = 0;
+static char light_value[16] = {0};
 
 void light_timer_callback() {
     sample_light = true;
@@ -146,6 +146,11 @@ int main(void) {
   while(1) {
     if (sample_light) {
        // first, read the sensor value
+        snprintf(light_value, 16, "%f", opt3004_read_result());
+        //light_value = opt3004_read_result();
+        printf("Reading (lux ): %s\n", light_value);
+        simple_ble_notify_char(&light_char);
+
        // need a simple_ble notify characteristic action here
 
       sample_light = false;

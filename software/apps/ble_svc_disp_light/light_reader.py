@@ -13,8 +13,11 @@ YOUR_ADDRESS = "c0:98:e5:49:00:00" # Replace address with your device address
 YOUR_SERVICE_UUID = "de97aeee-0e7e-4720-8038-4dc47aa9562f"
 YOUR_CHAR_UUID = "de97aeef-0e7e-4720-8038-4dc47aa9562f"
 
+
 try:
     buckler = Peripheral(YOUR_ADDRESS)
+    print("got to here")
+    
     buckler.setDelegate(CharDelegate())
 
     print("connected")
@@ -28,5 +31,8 @@ try:
     while True:
         if buckler.waitForNotifications(2.0):
             print("Got notification")
+    
+
 finally:
     buckler.disconnect()
+    print("Hi Mom")

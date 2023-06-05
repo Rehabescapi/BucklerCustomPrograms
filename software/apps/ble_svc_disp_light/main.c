@@ -11,7 +11,9 @@
 #include "display.h"
 
 #include "simple_ble.h"
+#include "nrf_delay.h"
 #include "buckler.h"
+#include "lsm9ds1.h"
 
 #include "opt3004.h"
 
@@ -41,6 +43,7 @@ static simple_ble_service_t display_service = {{
 
 static simple_ble_char_t display_char = {.uuid16 = 0x8911};
 static char display_data[32] = {0};
+static char display_Reset[32] = {0};
 
 //de97aeee-0e7e-4720-8038-4dc47aa9562f
 static simple_ble_service_t light_service = {{
@@ -69,11 +72,23 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
     {
     printf("Inner If statement %s\n", display_data);
    
-    char lineOne[16], lineTwo[16];
-    memcpy(lineOne, display_data, 16*sizeof(char));
-    memcpy(lineTwo,&display_data[16], 16*sizeof(char));
+    char lineOne[16] = {0};
+    char lineTwo[16] = {0};
+    
+    memcpy(lineOne, &display_data, 16*sizeof(char));
+    //lineOne[16] = '\0';
     display_write(lineOne, DISPLAY_LINE_0);
+    nrf_delay_ms(50);
+    memcpy(lineTwo,&display_data[16], 16*sizeof(char));
+
+    
     display_write(lineTwo, DISPLAY_LINE_1);
+
+    printf("L1\t%s \n L2\t%s\n",lineOne, lineTwo );
+    
+    memset(display_data, '\0',32);
+    //memcpy(display_data,display_Reset,32*sizeof(char));
+
 
     }
 }
@@ -112,6 +127,15 @@ int main(void) {
   error_code = nrf_twi_mngr_init(&twi_mngr_instance, &i2c_config);
   APP_ERROR_CHECK(error_code);
 
+   // initialize all the sensors in LSM9DS1
+  lsm9ds1_init(&twi_mngr_instance);
+  printf("IMU initialized!\n");
+
+  lsm9ds1_start_gyro_integration();
+
+
+/*
+  //light sensor configurations
   opt3004_config_t config = {
     .range_number = OPT3004_AUTORANGE,
     .conversion_time = OPT3004_CONVERSION_100MS,
@@ -127,6 +151,7 @@ int main(void) {
   printf("opt3004 initialized: %ld\n", error_code);
 
   opt3004_continuous();
+  */
 
   // Setup BLE
   simple_ble_app = simple_ble_init(&ble_config);
@@ -149,6 +174,7 @@ int main(void) {
 
   // Start Advertising
   simple_ble_adv_only_name();
+  //simple_ble_adv_manuf_data( light_value,16);
 
   // Set a timer to read the light sensor and notify readers
   app_timer_init();
@@ -158,7 +184,7 @@ int main(void) {
   while(1) {
     if (sample_light) {
        // first, read the sensor value
-        snprintf(light_value, 16, "%f", opt3004_read_result());
+        snprintf(light_value, 16, "Z:%f", lsm9ds1_read_gyro_integration().z_axis );
         //light_value = opt3004_read_result();
         printf("Reading (lux ): %s\n", light_value);
         simple_ble_notify_char(&light_char);

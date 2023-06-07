@@ -13,9 +13,9 @@
 #include "simple_ble.h"
 #include "nrf_delay.h"
 #include "buckler.h"
-//#include "lsm9ds1.h"
+#include "mpu9250.h"
 
-//#include "opt3004.h"
+#include "opt3004.h"
 
 // Create a timer
 APP_TIMER_DEF(light_timer);
@@ -104,6 +104,7 @@ int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
   // Initialize
 
+
   // initialize display
   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
   nrf_drv_spi_config_t spi_config = {
@@ -138,10 +139,7 @@ int main(void) {
   printf("IMU initialized!\n");
 
   lsm9ds1_start_gyro_integration();
-  */
 
-
-/*
   //light sensor configurations
   opt3004_config_t config = {
     .range_number = OPT3004_AUTORANGE,

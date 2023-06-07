@@ -24,18 +24,18 @@
 #include "kobukiSensorPoll.h"
 #include "kobukiSensorTypes.h"
 #include "kobukiUtilities.h"
-#include "lsm9ds1.h"
+#include "mpu9250.h"
 
 
 #include "simple_ble.h"
 #include "states.h"
 
 #include "helper_funcs.h"
-extern KobukiSensors_t sensors;
+//extern KobukiSensors_t sensors;
 
 
 // I2C manager
-NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
+//NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 
 // KobukiSensors_t sensors = {0};
 
@@ -48,15 +48,20 @@ static simple_ble_config_t ble_config = {
         .adv_name          = "KOBUKI", 	// used in advertisements if there is room
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(100, UNIT_1_25_MS),
-        .max_conn_interval = MSEC_TO_UNITS(200, UNIT_1_25_MS),
+        .max_conn_interval = MSEC_TO_UNITS(1000, UNIT_1_25_MS),
 };
 
 static simple_ble_service_t drive_service = {{
   .uuid128 = { 0x73, 0x30, 0xbb, 0x18,0x50,0xe5,0xab, 0x93, 0x75,0x4c,
 0x7c, 0x45, 0xc4,0x99,0x58,0xc0}
 }};
+
+
 // c05899c4-457c-4c75-93ab-e55018bb3073 -- Make sure to match with SERVICE_UUID
 
+static simple_ble_service_t led_service = {{
+  .uuid128 = {0x70, 0x6c, 0x86, 0x19, 0xe4, 0x43,0x14, 0xa9, 0xb5, 0x4d, 0x22, 0x2b,0x89,0x10,0xe6,0x32}
+}};
 // TODO: define a service for driving with UUID c05899c4-457c-4c75-93ab-e55018bb3073
 
 
@@ -72,14 +77,20 @@ static simple_ble_service_t drive_service = {{
   static simple_ble_char_t backward_char = {.uuid16 = 0x99c6};
   static bool drive_backward;
 
+static simple_ble_service_t turn_service = {{
+  .uuid128 = { 0x73, 0x30, 0xbb, 0x18,0x50,0xe5,0xab, 0x93, 0x75,0x4c,
+0x7c, 0x45, 0xc7,0x99,0x58,0xc0}
+}};
 
-  static simple_ble_char_t left_char = {.uuid16 = 0x99c8};
-  static bool drive_left;
-
-  static simple_ble_char_t right_char = {.uuid16 = 0x99c7};
+  static simple_ble_char_t right_char = {.uuid16 = 0x99c8};
   static bool drive_right;
 
 
+  static simple_ble_char_t left_char = {.uuid16 = 0x99c9};
+  static bool drive_left;
+
+  static simple_ble_char_t led_char = {.uuid16 = 0x8911};
+  static bool LED;
 
 static bool prev_df, prev_db, prev_dr, prev_dl = 0;
 
@@ -166,7 +177,9 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
       prev_dl = drive_left;
       simple_ble_notify_char(&left_char);
     }
-	
+	if(simple_ble_is_char_event(p_ble_evt, &led_char)){
+
+  }
 	// a small delay to allow the action for some time
      nrf_delay_ms(50); 
 }
@@ -185,38 +198,46 @@ int main(void) {
 
   simple_ble_add_service(&drive_service);
 
-  // uint8_t robot_service_char;
-
 
   
   // TODO: adding the characteristics for each directional movement
 
-	// characteristic for forward move: forward_char
-	// connected variable		  : drive_forward
-  simple_ble_add_characteristic(1, 0,0,0,
-    sizeof(drive_forward), (uint8_t*)&drive_forward,
-    &drive_service, &forward_char);
-
-
-	// characteristic for backward move: backward_char
-	// connected variable		   : drive_backward
-  simple_ble_add_characteristic(1, 0,0,0,
+  // characteristic for backward move: backward_char
+  // connected variable      : drive_backward
+  simple_ble_add_characteristic(1, 1,0,0,
     sizeof(drive_backward), (uint8_t*)&drive_backward,
     &drive_service, &backward_char);
 
 
-	// characteristic for left move   : left_char
-	// connected variable		  : drive_left
-  simple_ble_add_characteristic(1, 0,0,0,
-    sizeof(drive_left), (uint8_t*)&drive_left,
-    &drive_service, &left_char);
 
+	// characteristic for forward move: forward_char
+	// connected variable		  : drive_forward
+  simple_ble_add_characteristic(1, 1,0,0,
+    sizeof(drive_forward), (uint8_t*)&drive_forward,
+    &drive_service, &forward_char);
 
-	// characteristic for right move  : right_char
-	// connected variable		  : drive_right	
-  simple_ble_add_characteristic(1, 0,0,0,
+  simple_ble_add_service(&turn_service);
+
+      // uint8_t robot_service_char;
+  // characteristic for right move  : right_char
+  // connected variable     : drive_right 
+  simple_ble_add_characteristic(1, 1,0,0,
     sizeof(drive_right), (uint8_t*)&drive_right,
-    &drive_service, &right_char);
+    &turn_service, &right_char);
+
+  
+
+  // characteristic for left move   : left_char
+  // connected variable     : drive_left
+  simple_ble_add_characteristic(1, 1,0,0,
+    sizeof(drive_left), (uint8_t*)&drive_left,
+    &turn_service, &left_char);
+
+  
+
+
+
+
 
 
 
@@ -227,25 +248,27 @@ int main(void) {
 
 
   // You can choose to keep the LCD working
-
+  /*
   // // initialize display
-  // nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
-  // nrf_drv_spi_config_t spi_config = {
-  //   .sck_pin = BUCKLER_LCD_SCLK,
-  //   .mosi_pin = BUCKLER_LCD_MOSI,
-  //   .miso_pin = BUCKLER_LCD_MISO,
-  //   .ss_pin = BUCKLER_LCD_CS,
-  //   .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
-  //   .orc = 0,
-  //   .frequency = NRF_DRV_SPI_FREQ_4M,
-  //   .mode = NRF_DRV_SPI_MODE_2,
-  //   .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
-  // };
-  // error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
-  // APP_ERROR_CHECK(error_code);
-  // display_init(&spi_instance);
-  // printf("Display initialized!\n");
-
+   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
+   nrf_drv_spi_config_t spi_config = {
+     .sck_pin = BUCKLER_LCD_SCLK,
+     .mosi_pin = BUCKLER_LCD_MOSI,
+     .miso_pin = BUCKLER_LCD_MISO,
+     .ss_pin = BUCKLER_LCD_CS,
+   .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
+     .orc = 0,
+     .frequency = NRF_DRV_SPI_FREQ_4M,
+     .mode = NRF_DRV_SPI_MODE_2,
+     .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
+   };
+   error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
+   APP_ERROR_CHECK(error_code);
+   display_init(&spi_instance);
+    printf("Display initialized!\n");
+    display_write("Hi Human", DISPLAY_LINE_0);
+  */
+   /* 
    // initialize i2c master (two wire interface)
   nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
   i2c_config.scl = BUCKLER_SENSORS_SCL;
@@ -255,25 +278,25 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
 
   // initialize all the sensors in LSM9DS1
-  lsm9ds1_init(&twi_mngr_instance);
+  mpu9250_init(&twi_mngr_instance);
   printf("IMU initialized!\n");
-
+/*
   // initialize Kobuki
   kobukiInit();
   printf("Kobuki initialized!\n");
-
+  */
   
   
   // loop forever, running state machine
   while (1) {
   
    // even if we are not using the sensors, this command is needed to update the robot status
-   kobukiSensorPoll(&sensors);
+   //kobukiSensorPoll(&sensors);
    nrf_delay_ms(5); 
     
     // an ever present function to operate the robot. As a result of drive actions in BLE application, the drive speeds for left and right wheels are modified   
     //printf("Driving with Left: %d \t Right: %d \n", leftdrive, rightdrive);
-    kobukiDriveDirect(leftdrive,rightdrive);
+    //kobukiDriveDirect(leftdrive,rightdrive);
     power_manage();
 
   }

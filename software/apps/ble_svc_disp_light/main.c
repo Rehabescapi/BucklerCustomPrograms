@@ -13,9 +13,9 @@
 #include "simple_ble.h"
 #include "nrf_delay.h"
 #include "buckler.h"
-#include "lsm9ds1.h"
+//#include "lsm9ds1.h"
 
-#include "opt3004.h"
+//#include "opt3004.h"
 
 // Create a timer
 APP_TIMER_DEF(light_timer);
@@ -53,9 +53,13 @@ static simple_ble_service_t light_service = {{
 
 static simple_ble_char_t light_char = {.uuid16 = 0xaeef};
 static char light_value[16] = {0};
+static int i =0;
 
 void light_timer_callback() {
     sample_light = true;
+    i++;
+    snprintf(light_value,16, "%d", i );
+
 }
 
 
@@ -119,6 +123,8 @@ int main(void) {
   display_write("Hello, Human!", DISPLAY_LINE_0);
   printf("Display initialized!\n");
 
+
+  /*
   // initialize i2c master (two wire interface)
   nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
   i2c_config.scl = BUCKLER_SENSORS_SCL;
@@ -132,6 +138,7 @@ int main(void) {
   printf("IMU initialized!\n");
 
   lsm9ds1_start_gyro_integration();
+  */
 
 
 /*
@@ -184,7 +191,7 @@ int main(void) {
   while(1) {
     if (sample_light) {
        // first, read the sensor value
-        snprintf(light_value, 16, "Z:%f", lsm9ds1_read_gyro_integration().z_axis );
+        //snprintf(light_value, 16, "Z:%f", lsm9ds1_read_gyro_integration().z_axis );
         //light_value = opt3004_read_result();
         printf("Reading (lux ): %s\n", light_value);
         simple_ble_notify_char(&light_char);

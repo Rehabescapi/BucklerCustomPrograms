@@ -51,27 +51,33 @@ static simple_ble_config_t ble_config = {
         .max_conn_interval = MSEC_TO_UNITS(200, UNIT_1_25_MS),
 };
 
+static simple_ble_service_t drive_service = {{
+  .uuid128 = { 0x73, 0x30, 0xbb, 0x18,0x50,0xe5,0xab, 0x93, 0x75,0x4c,
+0x7c, 0x45, 0xc4,0x99,0x58,0xc0}
+}};
 // c05899c4-457c-4c75-93ab-e55018bb3073 -- Make sure to match with SERVICE_UUID
 
 // TODO: define a service for driving with UUID c05899c4-457c-4c75-93ab-e55018bb3073
 
 
 // TODO: defining characteristics related to driving 
-
+  
 	// characteristic for forward move: forward_char  -- {.uuid16 = 0x99c5}
 	// connected variable		  : drive_forward
-
+  static simple_ble_char_t forward_char = {.uuid16 = 0x99c5};
+  static bool drive_forward;
 
 	// characteristic for backward move: backward_char -- {.uuid16 = 0x99c6}
 	// connected variable		   : drive_backward
+  static simple_ble_char_t backward_char = {.uuid16 = 0x99c6};
+  static bool drive_backward;
 
 
-	// characteristic for left move   : left_char -- {.uuid16 = 0x99c8}
-	// connected variable		  : drive_left
+  static simple_ble_char_t left_char = {.uuid16 = 0x99c8};
+  static bool drive_left;
 
-
-	// characteristic for right move  : right_char -- {.uuid16 = 0x99c7}
-	// connected variable		  : drive_right
+  static simple_ble_char_t right_char = {.uuid16 = 0x99c7};
+  static bool drive_right;
 
 
 
@@ -181,23 +187,36 @@ int main(void) {
 
   // uint8_t robot_service_char;
 
+
   
   // TODO: adding the characteristics for each directional movement
 
 	// characteristic for forward move: forward_char
 	// connected variable		  : drive_forward
+  simple_ble_add_characteristic(1, 0,0,0,
+    sizeof(drive_forward), (uint8_t*)&drive_forward,
+    &drive_service, &forward_char);
 
 
 	// characteristic for backward move: backward_char
 	// connected variable		   : drive_backward
+  simple_ble_add_characteristic(1, 0,0,0,
+    sizeof(drive_backward), (uint8_t*)&drive_backward,
+    &drive_service, &backward_char);
 
 
 	// characteristic for left move   : left_char
 	// connected variable		  : drive_left
+  simple_ble_add_characteristic(1, 0,0,0,
+    sizeof(drive_left), (uint8_t*)&drive_left,
+    &drive_service, &left_char);
 
 
 	// characteristic for right move  : right_char
 	// connected variable		  : drive_right	
+  simple_ble_add_characteristic(1, 0,0,0,
+    sizeof(drive_right), (uint8_t*)&drive_right,
+    &drive_service, &right_char);
 
 
 
@@ -253,9 +272,9 @@ int main(void) {
    nrf_delay_ms(5); 
     
     // an ever present function to operate the robot. As a result of drive actions in BLE application, the drive speeds for left and right wheels are modified   
-    printf("Driving with Left: %d \t Right: %d \n", leftdrive, rightdrive);
+    //printf("Driving with Left: %d \t Right: %d \n", leftdrive, rightdrive);
     kobukiDriveDirect(leftdrive,rightdrive);
-    //power_manage();
+    power_manage();
 
   }
 }

@@ -87,7 +87,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
     printf("L1\t%s \n L2\t%s\n",lineOne, lineTwo );
     
     memset(display_data, '\0',32);
-    //memcpy(display_data,display_Reset,32*sizeof(char));
+    
 
 
     }

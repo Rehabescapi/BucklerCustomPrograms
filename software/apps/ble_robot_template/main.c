@@ -35,7 +35,7 @@
 
 
 // I2C manager
-//NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
+NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 
 // KobukiSensors_t sensors = {0};
 
@@ -45,7 +45,7 @@ static simple_ble_config_t ble_config = {
         // c0:98:e5:49:aa:bb  -- Make sure to match this with YOUR_ADDRESS in robot_control.py
         .platform_id       = 0x49,    	// used as 4th octect in device BLE address
         .device_id         = 0xaabb, 	// 
-        .adv_name          = "KOBUKI", 	// used in advertisements if there is room
+        .adv_name          = "TESTNAME", 	// used in advertisements if there is room
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(100, UNIT_1_25_MS),
         .max_conn_interval = MSEC_TO_UNITS(1000, UNIT_1_25_MS),
@@ -108,6 +108,63 @@ static int16_t speed = 512;
 // turn speed increment at each button press from BLE controller
 static int16_t turning_speed = 300;
 
+static int boardArray[2][16] = {' '};
+static int x = 0;
+static int y = 0;
+
+
+static char display_data[33] = {0};
+void displayGame(int dir){
+  char lineOne[16] = {0};
+  char lineTwo[16]= {0};
+  switch (dir)
+  {
+  case 1:
+  case 2:
+    x = x +16;
+   
+    
+    break;
+
+
+  case 3:
+    x = x-1;
+    if(x<0){
+      x = 31;
+    }
+    break;
+
+  case 4:
+     x = x+1;
+   
+
+    break;
+
+  default:
+    printf("I dun goofed");
+
+  }
+   x = x%32;
+  printf("%d",x );
+  display_data[x] = 'X';
+
+  nrf_delay_ms(10);
+
+  printf("value of data [%s]\n", display_data);
+  memcpy(lineOne, &display_data, 16*sizeof(char));
+
+  display_write(lineOne, DISPLAY_LINE_0);
+  nrf_delay_ms(50);
+
+  memcpy(lineTwo, &display_data[16], 16*sizeof(char));
+
+  display_write(lineTwo, DISPLAY_LINE_1);
+
+  memset(display_data, ' ',33);
+  display_data[32] = '\0';
+
+
+}
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
     if (simple_ble_is_char_event(p_ble_evt, &forward_char)) {
@@ -126,6 +183,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
 	// a flag to remember if forward was pressed
       prev_df = drive_forward;
       simple_ble_notify_char(&forward_char);
+      displayGame(1);
     }
     if (simple_ble_is_char_event(p_ble_evt, &backward_char)) {
       printf("Got write to backward characteristic!\n");
@@ -144,8 +202,10 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
 	// a flag to remember if backward was pressed
       prev_db = drive_backward;
       simple_ble_notify_char(&backward_char);
+      displayGame(2);
     }
     if (simple_ble_is_char_event(p_ble_evt, &right_char)) {
+      displayGame(4);
       printf("Got write to right characteristic!\n");
       if (drive_right != prev_dr) {
           if(drive_right) {
@@ -163,6 +223,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
     }
     if (simple_ble_is_char_event(p_ble_evt, &left_char)) {
       printf("Got write to left characteristic!\n");
+      displayGame(3);
       if (drive_left != prev_dl) {
           if(drive_left) {
               leftdrive -= turning_speed;
@@ -177,14 +238,14 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
       prev_dl = drive_left;
       simple_ble_notify_char(&left_char);
     }
-	if(simple_ble_is_char_event(p_ble_evt, &led_char)){
-
+    if(simple_ble_is_char_event(p_ble_evt, &led_char)){
   }
 	// a small delay to allow the action for some time
      nrf_delay_ms(50); 
 }
 
 int main(void) {
+
   ret_code_t error_code = NRF_SUCCESS;
 
   // initialize RTT library
@@ -193,6 +254,7 @@ int main(void) {
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Log initialized!\n");
 
+  printf("%s", ble_config.adv_name);
   // Setup BLE
   simple_ble_app = simple_ble_init(&ble_config);
 
@@ -248,7 +310,7 @@ int main(void) {
 
 
   // You can choose to keep the LCD working
-  /*
+  
   // // initialize display
    nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
    nrf_drv_spi_config_t spi_config = {
@@ -267,7 +329,7 @@ int main(void) {
    display_init(&spi_instance);
     printf("Display initialized!\n");
     display_write("Hi Human", DISPLAY_LINE_0);
-  */
+  
    /* 
    // initialize i2c master (two wire interface)
   nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
@@ -286,7 +348,7 @@ int main(void) {
   printf("Kobuki initialized!\n");
   */
   
-  
+   displayGame(5);
   // loop forever, running state machine
   while (1) {
   

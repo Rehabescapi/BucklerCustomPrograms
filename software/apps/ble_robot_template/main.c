@@ -108,15 +108,23 @@ static int16_t speed = 512;
 // turn speed increment at each button press from BLE controller
 static int16_t turning_speed = 300;
 
-static int boardArray[2][16] = {' '};
+
 static int x = 0;
-static int y = 0;
 
 
-static char display_data[33] = {0};
+
+static char display_data[33] = {' '};
+static  char lineOne[16]= {' '};
+static char lineTwo[16]= {' '};
 void displayGame(int dir){
-  char lineOne[16] = {0};
-  char lineTwo[16]= {0};
+  
+  memset(display_data, ' ',32);
+  //memset(lineOne, 'o',16);
+  //memset(lineTwo, 'o', 16);
+
+  
+ 
+  
   switch (dir)
   {
   case 1:
@@ -140,29 +148,36 @@ void displayGame(int dir){
 
     break;
 
-  default:
-    printf("I dun goofed");
+ // default:
+      
+    
 
   }
    x = x%32;
-  printf("%d",x );
+  //printf("%d",x );
   display_data[x] = 'X';
-
-  nrf_delay_ms(10);
-
-  printf("value of data [%s]\n", display_data);
+  printf("hi mom");
+  
   memcpy(lineOne, &display_data, 16*sizeof(char));
+  
+  
 
+  
+  
   display_write(lineOne, DISPLAY_LINE_0);
-  nrf_delay_ms(50);
+  
 
+  
   memcpy(lineTwo, &display_data[16], 16*sizeof(char));
 
+   
   display_write(lineTwo, DISPLAY_LINE_1);
+ 
+  
 
-  memset(display_data, ' ',33);
-  display_data[32] = '\0';
-
+   printf("value of data [%s]\n", display_data);
+   printf("value of lineTWO : %s\n", lineTwo);
+  
 
 }
 
@@ -328,7 +343,7 @@ int main(void) {
    APP_ERROR_CHECK(error_code);
    display_init(&spi_instance);
     printf("Display initialized!\n");
-    display_write("Hi Human", DISPLAY_LINE_0);
+    display_write("Hi Human", DISPLAY_LINE_1);
   
    /* 
    // initialize i2c master (two wire interface)
@@ -342,20 +357,16 @@ int main(void) {
   // initialize all the sensors in LSM9DS1
   mpu9250_init(&twi_mngr_instance);
   printf("IMU initialized!\n");
-/*
-  // initialize Kobuki
-  kobukiInit();
-  printf("Kobuki initialized!\n");
-  */
+*/
   
-   displayGame(5);
+   
   // loop forever, running state machine
   while (1) {
   
    // even if we are not using the sensors, this command is needed to update the robot status
    //kobukiSensorPoll(&sensors);
    nrf_delay_ms(5); 
-    
+     
     // an ever present function to operate the robot. As a result of drive actions in BLE application, the drive speeds for left and right wheels are modified   
     //printf("Driving with Left: %d \t Right: %d \n", leftdrive, rightdrive);
     //kobukiDriveDirect(leftdrive,rightdrive);

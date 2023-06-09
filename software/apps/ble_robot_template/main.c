@@ -114,15 +114,17 @@ static int x = 0;
 
 
 static char display_data[33] = {' '};
-static  char lineOne[16]= {' '};
-static char lineTwo[16]= {' '};
+
+
+
 void displayGame(int dir){
+  static char buf[16] = {' '};
   
   memset(display_data, ' ',32);
-  //memset(lineOne, 'o',16);
-  //memset(lineTwo, 'o', 16);
-
-  
+  char lineOne[17] = {0};
+  char lineTwo[17] = {0};
+ 
+    
  
   
   switch (dir)
@@ -130,11 +132,7 @@ void displayGame(int dir){
   case 1:
   case 2:
     x = x +16;
-   
-    
     break;
-
-
   case 3:
     x = x-1;
     if(x<0){
@@ -144,8 +142,6 @@ void displayGame(int dir){
 
   case 4:
      x = x+1;
-   
-
     break;
 
  // default:
@@ -154,35 +150,25 @@ void displayGame(int dir){
 
   }
    x = x%32;
-  //printf("%d",x );
+  printf("%d",x );
   display_data[x] = 'X';
-  printf("hi mom");
-  
   memcpy(lineOne, &display_data, 16*sizeof(char));
-  
-  
-
-  
-  
+   
   display_write(lineOne, DISPLAY_LINE_0);
-  
-
-  
+  //printf("value of data [%s]\n", display_data);
   memcpy(lineTwo, &display_data[16], 16*sizeof(char));
-
    
   display_write(lineTwo, DISPLAY_LINE_1);
- 
-  
 
-   printf("value of data [%s]\n", display_data);
+   snprintf(buf, 16, "%d", x);
+   //diisplay_write(buf)
    printf("value of lineTWO : %s\n", lineTwo);
   
-
 }
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
     if (simple_ble_is_char_event(p_ble_evt, &forward_char)) {
+      /*
       printf("Got write to forward characteristic!\n");
       if (drive_forward != prev_df) {
           if(drive_forward) {
@@ -198,10 +184,12 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
 	// a flag to remember if forward was pressed
       prev_df = drive_forward;
       simple_ble_notify_char(&forward_char);
+  */
       displayGame(1);
     }
     if (simple_ble_is_char_event(p_ble_evt, &backward_char)) {
       printf("Got write to backward characteristic!\n");
+     /*
       if (drive_backward != prev_db) {
           if(drive_backward) {
               leftdrive -= speed;
@@ -217,10 +205,12 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
 	// a flag to remember if backward was pressed
       prev_db = drive_backward;
       simple_ble_notify_char(&backward_char);
+      */
       displayGame(2);
     }
     if (simple_ble_is_char_event(p_ble_evt, &right_char)) {
       displayGame(4);
+      /*
       printf("Got write to right characteristic!\n");
       if (drive_right != prev_dr) {
           if(drive_right) {
@@ -235,16 +225,20 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
 	// a flag to remember if right turn was pressed
       prev_dr = drive_right;
       simple_ble_notify_char(&right_char);
+      */
     }
     if (simple_ble_is_char_event(p_ble_evt, &left_char)) {
       printf("Got write to left characteristic!\n");
       displayGame(3);
+
+
+      /*
       if (drive_left != prev_dl) {
           if(drive_left) {
               leftdrive -= turning_speed;
               rightdrive += turning_speed;
           } 
-	 else {
+	     else {
               leftdrive += turning_speed;
              rightdrive -= turning_speed;
           }
@@ -252,6 +246,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
 	// a flag to remember if left turn was pressed
       prev_dl = drive_left;
       simple_ble_notify_char(&left_char);
+      */
     }
     if(simple_ble_is_char_event(p_ble_evt, &led_char)){
   }
@@ -275,9 +270,6 @@ int main(void) {
 
   simple_ble_add_service(&drive_service);
 
-
-  
-  // TODO: adding the characteristics for each directional movement
 
   // characteristic for backward move: backward_char
   // connected variable      : drive_backward
@@ -343,7 +335,7 @@ int main(void) {
    APP_ERROR_CHECK(error_code);
    display_init(&spi_instance);
     printf("Display initialized!\n");
-    display_write("Hi Human", DISPLAY_LINE_1);
+    display_write("Hi Human", DISPLAY_LINE_0);
   
    /* 
    // initialize i2c master (two wire interface)
@@ -365,12 +357,13 @@ int main(void) {
   
    // even if we are not using the sensors, this command is needed to update the robot status
    //kobukiSensorPoll(&sensors);
-   nrf_delay_ms(5); 
+   nrf_delay_ms(550);
+   
      
     // an ever present function to operate the robot. As a result of drive actions in BLE application, the drive speeds for left and right wheels are modified   
     //printf("Driving with Left: %d \t Right: %d \n", leftdrive, rightdrive);
     //kobukiDriveDirect(leftdrive,rightdrive);
-    power_manage();
+    //power_manage();
 
   }
 }

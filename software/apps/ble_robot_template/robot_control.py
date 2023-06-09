@@ -1,4 +1,5 @@
 import simplepyble
+
 import keyboard
 import time
 
@@ -13,15 +14,19 @@ YOUR_ADDRESS = "c0:98:e5:49:aa:bb" # Replace address with your device address
 ##                   "c05899c4-457c-4c75-93ab-e55018bb3073": "c05899c7-457c-4c75-93ab-e55018bb3073",
 ##                   "c05899c4-457c-4c75-93ab-e55018bb3073": "c05899c8-457c-4c75-93ab-e55018bb3073"}
 # services of interest
+
+
+#Driver IDs Updated when I was invenstigating an access issue.
 SERVICE_UUID = {"led":"32e61089-2b22-4db5-a914-43ce41986c70",
-                "drive":"c05899c4-457c-4c75-93ab-e55018bb3073"}
+                "drive":"c05899c4-457c-4c75-93ab-e55018bb3073",
+                "turn" : "c05899c7-457c-4c75-93ab-e55018bb3073"}
 # characteristics of interest
 CHAR_UUIDS = {"up": "c05899c5-457c-4c75-93ab-e55018bb3073",
         "down": "c05899c6-457c-4c75-93ab-e55018bb3073",
-        "right": "c05899c7-457c-4c75-93ab-e55018bb3073",
-        "left": "c05899c8-457c-4c75-93ab-e55018bb3073",
+        "right": "c05899c8-457c-4c75-93ab-e55018bb3073",
+        "left": "c05899c9-457c-4c75-93ab-e55018bb3073",
         "led":"32e68911-2b22-4db5-a914-43ce41986c70"}
-YOUR_NAME = "KOBUKI"
+YOUR_NAME = "TESTNAME"
 
 
 
@@ -35,7 +40,9 @@ service_uuid = []
 characteristic_uuid = []
 class RobotController():
     def __del__(self):
+        
         print('Destructor called, Object deleted.')
+        time.sleep(5)
     def print_conents(self, service_uuid):
         for characteristics in CHAR_UUIDS.get_keys():
             contents = self.peripheral.read(self.service_uuid, self.characteristic_uuid)
@@ -51,8 +58,7 @@ class RobotController():
         self.drive = dict()
         self.led   = dict()
         self.drive_service = []
-
-
+        self.turn_service = []
         if len(adapters) == 0:
             print("No adapters found")
 
@@ -92,6 +98,9 @@ class RobotController():
                     print(f"{i}: {service_uuid} {characteristic}")
                     if service_uuid == SERVICE_UUID.get('drive'):
                         self.drive_service = service_uuid
+                    elif service_uuid == SERVICE_UUID.get('turn'):
+                        self.turn_service = service_uuid
+                    
                     elif service_uuid == SERVICE_UUID.get('led'):
                         self.led_service = service_uuid
                     if characteristic==CHAR_UUIDS.get("up"):
@@ -102,41 +111,54 @@ class RobotController():
                         self.left_characteristic = characteristic
                     elif characteristic==CHAR_UUIDS.get("right"):
                         self.right_characteristic = characteristic
+                print("Got to if Keyboard pressed")
                 while(True):
                         try:
                             time.sleep(0.3)
+                            choice = (input("Enter choice: "))
                             if (connect_device==False):
                                 print("Safely exiting now")
                                 self.peripheral.disconnect()
                                 return
+                            
+                            ##Had I Mac permission issues with On Press with Python.
+                            #changed to a on input+return
+                            # . 
                             else:
-                                if keyboard.is_pressed("UP"):
+                                if choice.upper() == ("U"):
                                     self.peripheral.write_request(self.drive_service, self.up_characteristic, HIGH)
                                     print("Moving Forward")
-                                    self.peripheral.write_request(self.drive_service, self.down_characteristic, LOW)
-                                elif keyboard.is_pressed("DOWN"):
+                                   # self.peripheral.write_request(self.drive_service, self.down_characteristic, LOW)
+                                elif choice.upper() == ("D"):
                                     self.peripheral.write_request(self.drive_service, self.down_characteristic, HIGH)
                                     print("Moving Backward")
-                                    self.peripheral.write_request(self.drive_service, self.up_characteristic, LOW)
-                                elif keyboard.is_pressed("LEFT"):
-                                    self.peripheral.write_request(self.drive_service, self.left_characteristic, HIGH)
+                                    #self.peripheral.write_request(self.drive_service, self.up_characteristic, LOW)
+                                elif choice.upper() == ("L"):
+                                    self.peripheral.write_request(self.turn_service, self.left_characteristic, HIGH)
                                     print("Moving Left")
-                                    self.peripheral.write_request(self.drive_service, self.right_characteristic, LOW)
-                                elif keyboard.is_pressed("RIGHT"):
-                                    self.peripheral.write_request(self.drive_service, self.right_characteristic, HIGH)
+                                    #self.peripheral.write_request(self.turn_service, self.right_characteristic, LOW)
+                                elif choice.upper() == ("R"):
+                                    self.peripheral.write_request(self.turn_service, self.right_characteristic, HIGH)
                                     print("Moving Right")
-                                    self.peripheral.write_request(self.drive_service, self.left_characteristic, LOW)
-                                elif keyboard.is_pressed("w"):
+                                    #self.peripheral.write_request(self.turn_service, self.left_characteristic, LOW)
+                                elif choice.upper() == ("W"):
                                     self.peripheral.write_request(self.led_service, self.right_characteristic, HIGH)
                                     print("LED On")
-                                elif keyboard.is_pressed("s"):                                    
+                                elif choice.upper == ("s"):                                    
                                     self.peripheral.write_request(self.led_service, self.right_characteristic, LOW)
                                     print("LED Off")
+
+
+
+
+                            
                         except KeyboardInterrupt:
                             print("Interrupted by Ctrl-C")
                             self.peripheral.disconnect()
                             print("Safely disconnecting now")
                             return
+                        except Exception as e: 
+                            print(e)
 
 
 robot = RobotController(YOUR_ADDRESS)
